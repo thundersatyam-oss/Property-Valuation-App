@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ValuPro — Property Inspection App</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --gold: #c9a84c;
+    --gold-light: #f0d98a;
+    --cream: #faf8f3;
+    --surface: #ffffff;
+    --muted: #6b6b7b;
+    --border: #e8e4d9;
+    --success: #2d7a4f;
+    --danger: #c0392b;
+    --shadow: 0 4px 24px rgba(26,26,46,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    background: var(--ink);
+    color: #fff;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .app-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+  }
+  .app-header h1 span { color: var(--gold); }
+  .header-badge {
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    background: var(--ink);
+    padding: 0 20px 14px;
+  }
+  .progress-track {
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+  .step-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  .step-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 500;
+    transition: color 0.3s;
+    cursor: pointer;
+  }
+  .step-label.active { color: var(--gold); }
+  .step-label.done { color: rgba(255,255,255,0.7); }
+
+  /* ── Content ── */
+  .content {
+    padding: 20px 16px 100px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ── Screens ── */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Section card ── */
+  .card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon {
+    width: 28px; height: 28px;
+    background: var(--ink);
+    color: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* ── Form elements ── */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--cream);
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: #fff;
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── Type selector ── */
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .type-btn {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+  }
+  .type-btn:hover { border-color: var(--gold); }
+  .type-btn.selected {
+    border-color: var(--gold);
+    background: #fdf8ea;
+  }
+  .type-btn .t-icon { font-size: 26px; display: block; margin-bottom: 4px; }
+  .type-btn .t-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+  /* ── Rating stars ── */
+  .star-row { display: flex; gap: 6px; }
+  .star {
+    font-size: 26px;
+    cursor: pointer;
+    color: var(--border);
+    transition: color 0.15s, transform 0.15s;
+    line-height: 1;
+  }
+  .star.lit { color: var(--gold); }
+  .star:hover { transform: scale(1.2); }
+
+  /* ── Photo upload ── */
+  .photo-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 12px;
+  }
+  .photo-zone:hover, .photo-zone.drag-over {
+    border-color: var(--gold);
+    background: #fdf8ea;
+  }
+  .photo-zone .pz-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+  .photo-zone p { font-size: 13px; color: var(--muted); }
+  .photo-zone p strong { color: var(--ink); }
+  #photoInput { display: none; }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .photo-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--border);
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-thumb .label-input {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 6px;
+  }
+  .photo-thumb .label-input input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 11px;
+    padding: 0;
+  }
+  .photo-thumb .label-input input:focus { outline: none; }
+  .photo-thumb .remove-btn {
+    position: absolute;
+    top: 4px; right: 4px;
+    background: rgba(192,57,43,0.85);
+    border: none;
+    color: #fff;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+
+  /* ── Tag chips ── */
+  .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink);
+    background: var(--cream);
+  }
+  .chip.selected { border-color: var(--gold); background: #fdf8ea; font-weight: 600; }
+
+  /* ── Condition meter ── */
+  .condition-wrap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .cond-btn {
+    padding: 8px 4px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+  }
+  .cond-btn.sel { border-color: transparent; color: #fff; }
+  .cond-btn[data-val="1"].sel { background: #c0392b; }
+  .cond-btn[data-val="2"].sel { background: #e67e22; }
+  .cond-btn[data-val="3"].sel { background: #f1c40f; color: #333; }
+  .cond-btn[data-val="4"].sel { background: #27ae60; }
+  .cond-btn[data-val="5"].sel { background: #1e8449; }
+
+  /* ── Nav buttons ── */
+  .nav-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    max-width: 640px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline {
+    background: var(--cream);
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--gold);
+  }
+  .btn-primary:hover { background: #2d2d4e; }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .btn-gold:hover { background: #b8953e; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── AI Processing screen ── */
+  .ai-panel {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .ai-orb {
+    width: 80px; height: 80px;
+    background: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 20px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); }
+    50% { box-shadow: 0 0 0 20px rgba(201,168,76,0); }
+  }
+  .ai-panel h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  .ai-panel p { color: var(--muted); font-size: 15px; }
+  .ai-steps { text-align: left; margin-top: 30px; }
+  .ai-step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .ai-step .s-icon { font-size: 20px; width: 28px; }
+  .ai-step .s-check { margin-left: auto; font-size: 18px; color: transparent; }
+  .ai-step.done .s-check { color: var(--success); }
+  .ai-step.running .s-check { color: var(--gold); animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* ── Result screen ── */
+  .result-hero {
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+  .result-hero .check { font-size: 56px; margin-bottom: 12px; }
+  .result-hero h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 8px; }
+  .result-hero p { color: var(--muted); }
+
+  .report-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--ink);
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .download-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    background: var(--gold);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background 0.2s;
+  }
+  .download-btn:hover { background: #b8953e; }
+
+  /* ── Misc ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .info-text { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .required { color: var(--danger); }
+
+  .valuation-box {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .valuation-box .v-label { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .valuation-box .v-value { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--gold); }
+  .valuation-box .v-range { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>Valu<span>Pro</span></h1>
+  <span class="header-badge">FIELD APP</span>
+</div>
+<div class="progress-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+  <div class="step-labels">
+    <span class="step-label active" onclick="goTo(0)">Basics</span>
+    <span class="step-label" onclick="goTo(1)">Property</span>
+    <span class="step-label" onclick="goTo(2)">Condition</span>
+    <span class="step-label" onclick="goTo(3)">Photos</span>
+    <span class="step-label" onclick="goTo(4)">Market</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ═══════════════════════════════════════ SCREEN 0: BASICS ═══ -->
+  <div class="screen active" id="screen-0">
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Inspection Basics</div>
+      <div class="field">
+        <label>Property Reference No.</label>
+        <input type="text" id="refNo" placeholder="e.g. VP-2024-0421">
+      </div>
+      <div class="field">
+        <label>Inspection Date <span class="required">*</span></label>
+        <input type="date" id="inspDate">
+      </div>
+      <div class="field">
+        <label>Valuer Name <span class="required">*</span></label>
+        <input type="text" id="valueName" placeholder="Your full name">
+      </div>
+      <div class="field">
+        <label>Client / Instructed By</label>
+        <input type="text" id="clientName" placeholder="Bank / Individual / Company">
+      </div>
+      <div class="field">
+        <label>Purpose of Valuation</label>
+        <select id="valPurpose">
+          <option value="">Select purpose...</option>
+          <option>Mortgage / Home Loan</option>
+          <option>Sale / Purchase</option>
+          <option>Insurance</option>
+          <option>Legal / Court</option>
+          <option>Rental Assessment</option>
+          <option>Stamp Duty</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📍</span> Location</div>
+      <div class="field">
+        <label>Full Address <span class="required">*</span></label>
+        <input type="text" id="addr1" placeholder="Street / Plot / Flat No.">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>City</label>
+          <input type="text" id="city" placeholder="City">
+        </div>
+        <div class="field">
+          <label>Pin / ZIP Code</label>
+          <input type="text" id="pincode" placeholder="000000">
+        </div>
+      </div>
+      <div class="field">
+        <label>Locality / Area</label>
+        <input type="text" id="locality" placeholder="Colony, Sector, Nagar...">
+      </div>
+      <div class="field">
+        <label>GPS Coordinates</label>
+        <input type="text" id="gps" placeholder="Tap to auto-fill" id="gpsField" readonly>
+        <div class="info-text">📡 Auto-detected from device GPS</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🏗️</span> Property Type</div>
+      <div class="type-grid">
+        <div class="type-btn selected" onclick="selectType(this,'Residential')" data-type="Residential">
+          <span class="t-icon">🏠</span>
+          <span class="t-label">Residential</span>
+        </div>
+        <div class="type-btn" onclick="selectType(this,'Commercial')" data-type="Commercial">
+          <span class="t-icon">🏢</span>
+          <span class="t-label">Commercial</span>
+        </div>
+        <div class="type-btn" onclick="selectType(this,'Industrial')" data-type="Industrial">
+          <span class="t-icon">🏭</span>
+          <span class="t-label">Industrial</span>
+        </div>
+        <div class="type-btn" onclick="selectType(this,'Land')" data-type="Land">
+          <span class="t-icon">🌿</span>
+          <span class="t-label">Land / Plot</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SCREEN 1: PROPERTY DETAILS ═══ -->
+  <div class="screen" id="screen-1">
+    <!-- Residential Fields -->
+    <div id="res-fields">
+      <div class="card">
+        <div class="card-title"><span class="icon">📐</span> Measurements</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Plot Area (sq.ft)</label>
+            <input type="number" id="plotArea" placeholder="0">
+          </div>
+          <div class="field">
+            <label>Built-up Area (sq.ft)</label>
+            <input type="number" id="builtArea" placeholder="0">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Carpet Area (sq.ft)</label>
+            <input type="number" id="carpetArea" placeholder="0">
+          </div>
+          <div class="field">
+            <label>No. of Floors</label>
+            <input type="number" id="floors" placeholder="1" min="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🛋️</span> Configuration</div>
+        <div class="field-row">
+          <div class="field">
+            <label>BHK / Type</label>
+            <select id="bhk">
+              <option>1 BHK</option><option>2 BHK</option><option>3 BHK</option>
+              <option>4 BHK</option><option>5+ BHK</option><option>Studio</option>
+              <option>Independent House</option><option>Villa</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Bedrooms</label>
+            <input type="number" id="bedrooms" placeholder="2" min="0">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Bathrooms</label>
+            <input type="number" id="bathrooms" placeholder="1" min="0">
+          </div>
+          <div class="field">
+            <label>Year Built</label>
+            <input type="number" id="yearBuilt" placeholder="2010">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🏗️</span> Construction</div>
+        <div class="field">
+          <label>Construction Type</label>
+          <select id="consType">
+            <option>RCC / Pucca</option>
+            <option>Load Bearing</option>
+            <option>Steel Frame</option>
+            <option>Pre-fabricated</option>
+            <option>Kuccha / Semi</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Amenities Present</label>
+          <div class="chip-wrap" id="amenityChips">
+            <span class="chip" onclick="toggleChip(this)">Parking</span>
+            <span class="chip" onclick="toggleChip(this)">Lift</span>
+            <span class="chip" onclick="toggleChip(this)">Generator</span>
+            <span class="chip" onclick="toggleChip(this)">Security</span>
+            <span class="chip" onclick="toggleChip(this)">Garden</span>
+            <span class="chip" onclick="toggleChip(this)">Club House</span>
+            <span class="chip" onclick="toggleChip(this)">Gym</span>
+            <span class="chip" onclick="toggleChip(this)">Swimming Pool</span>
+            <span class="chip" onclick="toggleChip(this)">CCTV</span>
+            <span class="chip" onclick="toggleChip(this)">Solar</span>
+            <span class="chip" onclick="toggleChip(this)">Modular Kitchen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commercial Fields -->
+    <div id="com-fields" style="display:none">
+      <div class="card">
+        <div class="card-title"><span class="icon">📐</span> Commercial Measurements</div>
+        <div class="field-row">
+          <div class="field"><label>Ground Floor Area (sq.ft)</label><input type="number" id="gfArea" placeholder="0"></div>
+          <div class="field"><label>Total Covered Area</label><input type="number" id="totalCovered" placeholder="0"></div>
+        </div>
+        <div class="field"><label>Usage / Occupation Type</label>
+          <select id="comUsage">
+            <option>Office Space</option><option>Retail Shop</option><option>Showroom</option>
+            <option>Hotel / Restaurant</option><option>Mall / Shopping Center</option><option>Mixed Use</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>No. of Floors</label><input type="number" id="comFloors" placeholder="2"></div>
+          <div class="field"><label>Year Built</label><input type="number" id="comYear" placeholder="2015"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📊</span> Commercial Features</div>
+        <div class="field"><label>Commercial Amenities</label>
+          <div class="chip-wrap">
+            <span class="chip" onclick="toggleChip(this)">Basement Parking</span>
+            <span class="chip" onclick="toggleChip(this)">Lifts</span>
+            <span class="chip" onclick="toggleChip(this)">Escalators</span>
+            <span class="chip" onclick="toggleChip(this)">Fire Safety</span>
+            <span class="chip" onclick="toggleChip(this)">Central AC</span>
+            <span class="chip" onclick="toggleChip(this)">DG Backup</span>
+            <span class="chip" onclick="toggleChip(this)">Loading Bay</span>
+            <span class="chip" onclick="toggleChip(this)">Canteen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Industrial Fields -->
+    <div id="ind-fields" style="display:none">
+      <div class="card">
+        <div class="card-title"><span class="icon">📐</span> Industrial Measurements</div>
+        <div class="field-row">
+          <div class="field"><label>Total Plot Area (sq.ft)</label><input type="number" id="indPlot" placeholder="0"></div>
+          <div class="field"><label>Factory/Shed Area</label><input type="number" id="indShed" placeholder="0"></div>
+        </div>
+        <div class="field"><label>Type of Industrial Unit</label>
+          <select id="indType">
+            <option>Manufacturing Unit</option><option>Warehouse / Godown</option>
+            <option>Cold Storage</option><option>Processing Plant</option><option>Workshop</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Ceiling Height (ft)</label><input type="number" id="ceilHeight" placeholder="20"></div>
+          <div class="field"><label>Power Load (KVA)</label><input type="number" id="powerLoad" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🔧</span> Industrial Features</div>
+        <div class="chip-wrap">
+          <span class="chip" onclick="toggleChip(this)">Overhead Crane</span>
+          <span class="chip" onclick="toggleChip(this)">Loading Dock</span>
+          <span class="chip" onclick="toggleChip(this)">Rail Siding</span>
+          <span class="chip" onclick="toggleChip(this)">Effluent Plant</span>
+          <span class="chip" onclick="toggleChip(this)">Transformer</span>
+          <span class="chip" onclick="toggleChip(this)">Water Borewell</span>
+          <span class="chip" onclick="toggleChip(this)">Admin Block</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Land Fields -->
+    <div id="land-fields" style="display:none">
+      <div class="card">
+        <div class="card-title"><span class="icon">📐</span> Land Details</div>
+        <div class="field-row">
+          <div class="field"><label>Area (sq.ft)</label><input type="number" id="landArea" placeholder="0"></div>
+          <div class="field"><label>Area (sq.yd)</label><input type="number" id="landYard" placeholder="0"></div>
+        </div>
+        <div class="field"><label>Land Use Zoning</label>
+          <select id="landZone">
+            <option>Residential Zone</option><option>Commercial Zone</option>
+            <option>Industrial Zone</option><option>Agricultural</option>
+            <option>Mixed Use</option><option>NA / Non-Agricultural</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Road Width (ft)</label><input type="number" id="roadWidth" placeholder="30"></div>
+          <div class="field"><label>Corner Plot?</label>
+            <select id="cornerPlot"><option>No</option><option>Yes</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📄</span> Title & Documents</div>
+        <div class="chip-wrap">
+          <span class="chip" onclick="toggleChip(this)">Clear Title</span>
+          <span class="chip" onclick="toggleChip(this)">Encumbrance Free</span>
+          <span class="chip" onclick="toggleChip(this)">7/12 Verified</span>
+          <span class="chip" onclick="toggleChip(this)">Layout Approved</span>
+          <span class="chip" onclick="toggleChip(this)">NA Permission</span>
+          <span class="chip" onclick="toggleChip(this)">Demarcated</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🌐</span> Connectivity & Infrastructure</div>
+      <div class="field-row">
+        <div class="field"><label>Road Access</label>
+          <select id="roadAccess"><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
+        </div>
+        <div class="field"><label>Public Transport</label>
+          <select id="transport"><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Nearby Landmarks</label>
+        <input type="text" id="landmarks" placeholder="School, Hospital, Market, Metro...">
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SCREEN 2: CONDITION ═══ -->
+  <div class="screen" id="screen-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">🔍</span> Overall Condition</div>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Rate overall property condition</p>
+      <div class="condition-wrap">
+        <div class="cond-btn" data-val="1" onclick="setCond(this)">Very Poor</div>
+        <div class="cond-btn" data-val="2" onclick="setCond(this)">Poor</div>
+        <div class="cond-btn sel" data-val="3" onclick="setCond(this)">Average</div>
+        <div class="cond-btn" data-val="4" onclick="setCond(this)">Good</div>
+        <div class="cond-btn" data-val="5" onclick="setCond(this)">Excellent</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🏗️</span> Structural Assessment</div>
+      <div class="field">
+        <label>Foundation</label>
+        <select id="foundation"><option>Good</option><option>Average</option><option>Needs Repair</option><option>Poor</option></select>
+      </div>
+      <div class="field">
+        <label>Walls</label>
+        <select id="walls"><option>Good</option><option>Average — Minor Cracks</option><option>Major Cracks</option><option>Needs Replastering</option></select>
+      </div>
+      <div class="field">
+        <label>Roof / Terrace</label>
+        <select id="roof"><option>Good</option><option>Minor Seepage</option><option>Major Seepage</option><option>Needs Replacement</option></select>
+      </div>
+      <div class="field">
+        <label>Flooring</label>
+        <select id="flooring"><option>Marble</option><option>Vitrified Tiles</option><option>Ceramic Tiles</option><option>Mosaic</option><option>Cement</option><option>Wooden</option></select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">⚡</span> Utilities</div>
+      <div class="field-row">
+        <div class="field"><label>Electricity</label>
+          <select id="electricity"><option>Government Supply</option><option>Solar + Grid</option><option>Generator Only</option><option>Absent</option></select>
+        </div>
+        <div class="field"><label>Water Supply</label>
+          <select id="water"><option>Municipal + Borewell</option><option>Municipal Only</option><option>Borewell Only</option><option>Tanker</option></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Drainage / Sewage</label>
+          <select id="drainage"><option>Connected</option><option>Septic Tank</option><option>Not Available</option></select>
+        </div>
+        <div class="field"><label>Legal Status</label>
+          <select id="legalStatus"><option>Clear</option><option>Disputed</option><option>Under Litigation</option><option>Encroachment</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span> Valuer's Site Observations</div>
+      <div class="field">
+        <label>Key Observations</label>
+        <textarea id="observations" placeholder="Note anything specific observed during inspection — unusual features, defects, encroachments, special attributes..."></textarea>
+      </div>
+      <div class="field">
+        <label>Overall Location Rating</label>
+        <div class="star-row" id="locStars">
+          <span class="star lit" data-v="1" onclick="setStars('locStars',1)">★</span>
+          <span class="star lit" data-v="2" onclick="setStars('locStars',2)">★</span>
+          <span class="star lit" data-v="3" onclick="setStars('locStars',3)">★</span>
+          <span class="star" data-v="4" onclick="setStars('locStars',4)">★</span>
+          <span class="star" data-v="5" onclick="setStars('locStars',5)">★</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SCREEN 3: PHOTOS ═══ -->
+  <div class="screen" id="screen-3">
+    <div class="card">
+      <div class="card-title"><span class="icon">📸</span> Site Photographs</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Capture photos of: Front Elevation, Sides, Interior, Roof, Street view, Neighbourhood</p>
+      <div class="photo-zone" onclick="document.getElementById('photoInput').click()" id="photoZone">
+        <span class="pz-icon">📷</span>
+        <p><strong>Tap to take photos or upload</strong></p>
+        <p>Supports JPG, PNG — Multiple allowed</p>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" multiple capture="environment" onchange="handlePhotos(this)">
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Photo Coverage Checklist</div>
+      <div class="chip-wrap" id="photoChecks">
+        <span class="chip" onclick="toggleChip(this)">Front Elevation ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Left Side ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Right Side ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Rear View ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Main Entrance ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Living Area ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Kitchen ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Bedrooms ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Bathrooms ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Terrace / Roof ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Parking ✓</span>
+        <span class="chip" onclick="toggleChip(this)">Street View ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SCREEN 4: MARKET ═══ -->
+  <div class="screen" id="screen-4">
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Market Survey</div>
+      <div class="field">
+        <label>Market Trend</label>
+        <div class="chip-wrap">
+          <span class="chip selected" onclick="selectOne(this,'trend')">📈 Rising</span>
+          <span class="chip" onclick="selectOne(this,'trend')">➡️ Stable</span>
+          <span class="chip" onclick="selectOne(this,'trend')">📉 Declining</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Market Liquidity</label>
+        <div class="chip-wrap">
+          <span class="chip selected" onclick="selectOne(this,'liquidity')">🔥 High Demand</span>
+          <span class="chip" onclick="selectOne(this,'liquidity')">⚖️ Moderate</span>
+          <span class="chip" onclick="selectOne(this,'liquidity')">🧊 Low Demand</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🏘️</span> Comparable Sales</div>
+      <p class="info-text" style="margin-bottom:14px">Enter 2–3 recent comparable transactions from dealers</p>
+      <div id="compsList">
+        <div class="comp-entry" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+          <div class="field-row">
+            <div class="field"><label>Address / Area</label><input type="text" class="comp-addr" placeholder="Nearby property"></div>
+            <div class="field"><label>Rate (₹/sq.ft)</label><input type="number" class="comp-rate" placeholder="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Area (sq.ft)</label><input type="number" class="comp-area" placeholder="0"></div>
+            <div class="field"><label>Sale Date</label><input type="date" class="comp-date"></div>
+          </div>
+        </div>
+        <div class="comp-entry" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+          <div class="field-row">
+            <div class="field"><label>Address / Area</label><input type="text" class="comp-addr" placeholder="Nearby property"></div>
+            <div class="field"><label>Rate (₹/sq.ft)</label><input type="number" class="comp-rate" placeholder="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Area (sq.ft)</label><input type="number" class="comp-area" placeholder="0"></div>
+            <div class="field"><label>Sale Date</label><input type="date" class="comp-date"></div>
+          </div>
+        </div>
+        <div class="comp-entry">
+          <div class="field-row">
+            <div class="field"><label>Address / Area</label><input type="text" class="comp-addr" placeholder="Nearby property"></div>
+            <div class="field"><label>Rate (₹/sq.ft)</label><input type="number" class="comp-rate" placeholder="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Area (sq.ft)</label><input type="number" class="comp-area" placeholder="0"></div>
+            <div class="field"><label>Sale Date</label><input type="date" class="comp-date"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">💰</span> Value Estimate</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Estimated Rate (₹/sq.ft)</label>
+          <input type="number" id="estRate" placeholder="0" oninput="calcValue()">
+        </div>
+        <div class="field">
+          <label>Valuation Method</label>
+          <select id="valMethod" onchange="calcValue()">
+            <option>Market Comparison</option>
+            <option>Cost Approach</option>
+            <option>Income Approach</option>
+            <option>Depreciated Replacement</option>
+          </select>
+        </div>
+      </div>
+      <div id="calcResult" style="display:none; margin-top:10px">
+        <div class="valuation-box">
+          <div class="v-label">Estimated Market Value</div>
+          <div class="v-value" id="calcValue">₹0</div>
+          <div class="v-range" id="calcRange">Range: ₹0 – ₹0</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Additional Remarks</label>
+        <textarea id="marketRemarks" placeholder="Any special conditions, forced sale discount, renovation premium..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SCREEN 5: AI PROCESSING ═══ -->
+  <div class="screen" id="screen-5">
+    <div class="ai-panel card">
+      <div class="ai-orb">🤖</div>
+      <h2>Generating Report</h2>
+      <p>AI is compiling your inspection data into a professional valuation report</p>
+      <div class="ai-steps" id="aiSteps">
+        <div class="ai-step" id="step-a"><span class="s-icon">📋</span> Parsing inspection data <span class="s-check" id="check-a">⟳</span></div>
+        <div class="ai-step" id="step-b"><span class="s-icon">📸</span> Processing site photos <span class="s-check" id="check-b">⟳</span></div>
+        <div class="ai-step" id="step-c"><span class="s-icon">📊</span> Analysing market comparables <span class="s-check" id="check-c">⟳</span></div>
+        <div class="ai-step" id="step-d"><span class="s-icon">💰</span> Computing valuation <span class="s-check" id="check-d">⟳</span></div>
+        <div class="ai-step" id="step-e"><span class="s-icon">📝</span> Drafting report narrative <span class="s-check" id="check-e">⟳</span></div>
+        <div class="ai-step" id="step-f"><span class="s-icon">📄</span> Formatting Word document <span class="s-check" id="check-f">⟳</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ SCREEN 6: RESULT ═══ -->
+  <div class="screen" id="screen-6">
+    <div class="card result-hero">
+      <div class="check">✅</div>
+      <h2>Report Ready!</h2>
+      <p id="reportSubtitle">Valuation report generated successfully</p>
+    </div>
+
+    <div class="valuation-box" id="finalValBox" style="display:none">
+      <div class="v-label">Final Estimated Value</div>
+      <div class="v-value" id="finalVal">₹0</div>
+      <div class="v-range" id="finalRange">—</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📄</span> Report Preview</div>
+      <div class="report-preview" id="reportPreview">Loading report...</div>
+    </div>
+
+    <button class="download-btn" onclick="downloadReport()">
+      📥 Download Word Report (.docx)
+    </button>
+    <br><br>
+    <button class="btn btn-outline" onclick="startNew()" style="width:100%;margin-top:8px">
+      + Start New Inspection
+    </button>
+  </div>
+
+</div><!-- /content -->
+
+<!-- Nav Bar -->
+<div class="nav-bar" id="navBar">
+  <button class="btn btn-outline" id="btnBack" onclick="navigate(-1)" style="display:none">← Back</button>
+  <button class="btn btn-primary" id="btnNext" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let currentScreen = 0;
+const TOTAL_SCREENS = 5; // 0–4 data screens
+let selectedType = 'Residential';
+let condition = 3;
+let photos = []; // {dataUrl, label}
+let reportText = '';
+
+// ── Auto-fill date & GPS ──
+window.addEventListener('load', () => {
+  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(p => {
+      document.getElementById('gps').value = p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);
+    });
+  }
+});
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+function navigate(dir) {
+  if (dir === 1 && currentScreen === TOTAL_SCREENS - 1) {
+    startAI(); return;
+  }
+  goTo(currentScreen + dir);
+}
+
+function goTo(n) {
+  if (n < 0 || n >= TOTAL_SCREENS) return;
+  document.getElementById('screen-'+currentScreen).classList.remove('active');
+  currentScreen = n;
+  document.getElementById('screen-'+currentScreen).classList.add('active');
+  updateNav();
+}
+
+function updateNav() {
+  const labels = document.querySelectorAll('.step-label');
+  labels.forEach((l, i) => {
+    l.classList.remove('active','done');
+    if (i === currentScreen) l.classList.add('active');
+    else if (i < currentScreen) l.classList.add('done');
+  });
+  document.getElementById('progressFill').style.width = ((currentScreen+1)/TOTAL_SCREENS*100)+'%';
+  document.getElementById('btnBack').style.display = currentScreen > 0 ? 'flex' : 'none';
+  document.getElementById('btnNext').textContent = currentScreen === TOTAL_SCREENS-1 ? '🤖 Generate Report' : 'Next →';
+  document.getElementById('btnNext').className = currentScreen === TOTAL_SCREENS-1 ? 'btn btn-gold' : 'btn btn-primary';
+}
+
+// ════════════════════════════════════════════════
+//  TYPE SELECTOR
+// ════════════════════════════════════════════════
+function selectType(el, type) {
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+  ['res-fields','com-fields','ind-fields','land-fields'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+  const map = {Residential:'res',Commercial:'com',Industrial:'ind',Land:'land'};
+  document.getElementById(map[type]+'-fields').style.display='block';
+}
+
+// ════════════════════════════════════════════════
+//  CHIPS & STARS & CONDITION
+// ════════════════════════════════════════════════
+function toggleChip(el) { el.classList.toggle('selected'); }
+function selectOne(el, group) {
+  el.closest('.chip-wrap').querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function setStars(id, val) {
+  document.querySelectorAll('#'+id+' .star').forEach(s=>{
+    s.classList.toggle('lit', +s.dataset.v <= val);
+  });
+}
+function setCond(el) {
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  condition = +el.dataset.val;
+}
+
+// ════════════════════════════════════════════════
+//  PHOTOS
+// ════════════════════════════════════════════════
+function handlePhotos(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      photos.push({dataUrl: e.target.result, label:'', file});
+      renderPhotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function renderPhotos() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+  photos.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = `
+      <img src="${p.dataUrl}" alt="Photo ${i+1}">
+      <div class="label-input"><input type="text" placeholder="Label..." value="${p.label}" onchange="photos[${i}].label=this.value"></div>
+      <button class="remove-btn" onclick="removePhoto(${i})">×</button>`;
+    grid.appendChild(div);
+  });
+}
+
+function removePhoto(i) { photos.splice(i,1); renderPhotos(); }
+
+// ════════════════════════════════════════════════
+//  VALUE CALCULATOR
+// ════════════════════════════════════════════════
+function calcValue() {
+  const rate = +document.getElementById('estRate').value;
+  const area = +document.getElementById('builtArea').value || +document.getElementById('carpetArea').value || 1000;
+  if (!rate) { document.getElementById('calcResult').style.display='none'; return; }
+  const val = rate * area;
+  document.getElementById('calcResult').style.display='block';
+  document.getElementById('calcValue').textContent = '₹'+val.toLocaleString('en-IN');
+  document.getElementById('calcRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
+}
+
+// ════════════════════════════════════════════════
+//  AI PROCESSING
+// ════════════════════════════════════════════════
+async function startAI() {
+  // Hide nav
+  document.getElementById('navBar').style.display='none';
+  // Switch to processing screen
+  document.getElementById('screen-'+currentScreen).classList.remove('active');
+  document.getElementById('screen-5').classList.add('active');
+  document.getElementById('progressFill').style.width = '100%';
+
+  // Reset steps
+  const steps = ['a','b','c','d','e','f'];
+  steps.forEach(s=>{
+    document.getElementById('step-'+s).classList.remove('done','running');
+    document.getElementById('check-'+s).textContent='⟳';
+  });
+
+  // Animate steps
+  for (let i=0; i<steps.length; i++) {
+    const s = steps[i];
+    document.getElementById('step-'+s).classList.add('running');
+    document.getElementById('check-'+s).textContent='⟳';
+    await delay(i < 4 ? 700 : 1000);
+    document.getElementById('step-'+s).classList.remove('running');
+    document.getElementById('step-'+s).classList.add('done');
+    document.getElementById('check-'+s).textContent='✅';
+  }
+
+  // Build data object
+  const data = collectData();
+  
+  // Call AI
+  await generateReport(data);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function collectData() {
+  const chips = (container) => {
+    const el = document.querySelector(container);
+    if (!el) return [];
+    return Array.from(el.querySelectorAll('.chip.selected')).map(c=>c.textContent);
+  };
+  const comps = Array.from(document.querySelectorAll('.comp-entry')).map(c=>({
+    address: c.querySelector('.comp-addr').value,
+    rate: c.querySelector('.comp-rate').value,
+    area: c.querySelector('.comp-area').value,
+    date: c.querySelector('.comp-date').value
+  })).filter(c=>c.address||c.rate);
+
+  const condLabels = {1:'Very Poor',2:'Poor',3:'Average',4:'Good',5:'Excellent'};
+  const locRating = document.querySelectorAll('#locStars .star.lit').length;
+
+  return {
+    ref: document.getElementById('refNo').value || 'VP-'+Date.now(),
+    date: document.getElementById('inspDate').value,
+    valuer: document.getElementById('valueName').value,
+    client: document.getElementById('clientName').value,
+    purpose: document.getElementById('valPurpose').value,
+    address: [document.getElementById('addr1').value, document.getElementById('locality').value, document.getElementById('city').value, document.getElementById('pincode').value].filter(Boolean).join(', '),
+    gps: document.getElementById('gps').value,
+    propertyType: selectedType,
+    condition: condLabels[condition] + ` (${condition}/5)`,
+    foundation: document.getElementById('foundation').value,
+    walls: document.getElementById('walls').value,
+    roof: document.getElementById('roof').value,
+    flooring: document.getElementById('flooring').value,
+    electricity: document.getElementById('electricity').value,
+    water: document.getElementById('water').value,
+    drainage: document.getElementById('drainage').value,
+    legalStatus: document.getElementById('legalStatus').value,
+    roadAccess: document.getElementById('roadAccess').value,
+    transport: document.getElementById('transport').value,
+    landmarks: document.getElementById('landmarks').value,
+    locationRating: locRating + '/5',
+    observations: document.getElementById('observations').value,
+    photoCount: photos.length,
+    photoLabels: photos.map(p=>p.label).filter(Boolean),
+    comparables: comps,
+    marketTrend: document.querySelector('#screen-4 .chip-wrap .chip.selected')?.textContent || 'Stable',
+    estimatedRate: document.getElementById('estRate').value,
+    valuationMethod: document.getElementById('valMethod').value,
+    marketRemarks: document.getElementById('marketRemarks').value,
+    // Type-specific
+    builtArea: document.getElementById('builtArea')?.value,
+    plotArea: document.getElementById('plotArea')?.value,
+    carpetArea: document.getElementById('carpetArea')?.value,
+    bhk: document.getElementById('bhk')?.value,
+    bedrooms: document.getElementById('bedrooms')?.value,
+    bathrooms: document.getElementById('bathrooms')?.value,
+    yearBuilt: document.getElementById('yearBuilt')?.value,
+    floors: document.getElementById('floors')?.value,
+    amenities: chips('#amenityChips'),
+  };
+}
+
+async function generateReport(data) {
+  const prompt = `You are a senior certified property valuer. Based on the following inspection data, write a formal, professional property valuation report in structured format. The report should be comprehensive, use formal language, include all sections, and read like an official valuation document.
+
+INSPECTION DATA:
+Reference: ${data.ref}
+Date: ${data.date}
+Valuer: ${data.valuer}
+Client: ${data.client}
+Purpose: ${data.purpose}
+Property Type: ${data.propertyType}
+Address: ${data.address}
+GPS: ${data.gps}
+
+PROPERTY DETAILS:
+${data.builtArea ? `Built-up Area: ${data.builtArea} sq.ft` : ''}
+${data.plotArea ? `Plot Area: ${data.plotArea} sq.ft` : ''}
+${data.carpetArea ? `Carpet Area: ${data.carpetArea} sq.ft` : ''}
+${data.bhk ? `Configuration: ${data.bhk}` : ''}
+${data.bedrooms ? `Bedrooms: ${data.bedrooms}, Bathrooms: ${data.bathrooms}` : ''}
+${data.yearBuilt ? `Year of Construction: ${data.yearBuilt}` : ''}
+${data.floors ? `Number of Floors: ${data.floors}` : ''}
+${data.amenities.length ? `Amenities: ${data.amenities.join(', ')}` : ''}
+
+CONDITION ASSESSMENT:
+Overall Condition: ${data.condition}
+Foundation: ${data.foundation}
+Walls: ${data.walls}
+Roof: ${data.roof}
+Flooring: ${data.flooring}
+Electricity: ${data.electricity}
+Water Supply: ${data.water}
+Drainage: ${data.drainage}
+Legal Status: ${data.legalStatus}
+
+LOCATION:
+Road Access: ${data.roadAccess}
+Public Transport: ${data.transport}
+Nearby Landmarks: ${data.landmarks}
+Location Rating: ${data.locationRating}
+
+VALUER OBSERVATIONS: ${data.observations}
+
+MARKET SURVEY:
+${data.comparables.map((c,i)=>`Comparable ${i+1}: ${c.address}, Rate: ₹${c.rate}/sq.ft, Area: ${c.area} sq.ft, Date: ${c.date}`).join('\n')}
+Market Trend: ${data.marketTrend}
+Estimated Rate: ₹${data.estimatedRate}/sq.ft
+Valuation Method: ${data.valuationMethod}
+Market Remarks: ${data.marketRemarks}
+
+PHOTOGRAPHY: ${data.photoCount} photographs were taken during the inspection.
+
+Write a complete formal valuation report with these sections:
+1. EXECUTIVE SUMMARY
+2. PROPERTY DESCRIPTION
+3. LOCATION ANALYSIS
+4. STRUCTURAL & CONDITION ASSESSMENT
+5. MARKET ANALYSIS & COMPARABLE TRANSACTIONS
+6. VALUATION METHODOLOGY
+7. ESTIMATED MARKET VALUE
+8. ASSUMPTIONS & LIMITING CONDITIONS
+9. VALUER'S CERTIFICATE
+
+Use formal, professional language. Include estimated market value with a range. Sign off with the valuer's name and date.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const json = await res.json();
+    reportText = json.content?.[0]?.text || 'Report generation failed. Please try again.';
+  } catch(e) {
+    reportText = buildFallbackReport(data);
+  }
+
+  showResult(data);
+}
+
+function buildFallbackReport(data) {
+  const rate = +data.estimatedRate || 0;
+  const area = +data.builtArea || +data.plotArea || 1000;
+  const val = rate * area;
+  return `PROPERTY VALUATION REPORT
+${'─'.repeat(50)}
+
+REFERENCE: ${data.ref}
+DATE: ${data.date}
+VALUER: ${data.valuer}
+CLIENT: ${data.client}
+PURPOSE: ${data.purpose}
+
+1. EXECUTIVE SUMMARY
+This report presents the market valuation of the ${data.propertyType.toLowerCase()} property located at ${data.address}, inspected on ${data.date}. The property has been assessed using the ${data.valuationMethod} approach.
+
+2. PROPERTY DESCRIPTION
+Property Type: ${data.propertyType}
+Address: ${data.address}
+${data.builtArea ? `Built-up Area: ${data.builtArea} sq.ft` : ''}
+${data.bhk ? `Configuration: ${data.bhk}` : ''}
+Overall Condition: ${data.condition}
+
+3. LOCATION ANALYSIS
+Road Access: ${data.roadAccess} | Transport: ${data.transport}
+Location Rating: ${data.locationRating}
+Nearby: ${data.landmarks || 'Various amenities in vicinity'}
+
+4. STRUCTURAL ASSESSMENT
+Foundation: ${data.foundation} | Walls: ${data.walls}
+Roof: ${data.roof} | Flooring: ${data.flooring}
+Electricity: ${data.electricity} | Water: ${data.water}
+
+5. MARKET ANALYSIS
+Market Trend: ${data.marketTrend}
+${data.comparables.map((c,i)=>`Comparable ${i+1}: ${c.address} @ ₹${c.rate}/sq.ft`).join('\n')}
+
+6. VALUATION
+Method: ${data.valuationMethod}
+Estimated Rate: ₹${rate.toLocaleString('en-IN')}/sq.ft
+Estimated Market Value: ₹${val.toLocaleString('en-IN')}
+(Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')})
+
+7. VALUER'S CERTIFICATE
+I hereby certify that I have personally inspected the above property and the valuation is provided in good faith.
+
+Signed: ${data.valuer}
+Date: ${data.date}
+${'─'.repeat(50)}`;
+}
+
+function showResult(data) {
+  const rate = +data.estimatedRate || 0;
+  const area = +data.builtArea || +data.plotArea || 1000;
+  const val = rate * area;
+
+  // Final valuation box
+  if (rate > 0) {
+    document.getElementById('finalValBox').style.display='block';
+    document.getElementById('finalVal').textContent = '₹'+val.toLocaleString('en-IN');
+    document.getElementById('finalRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
+  }
+
+  document.getElementById('reportSubtitle').textContent = `${data.ref} — ${data.address}`;
+  document.getElementById('reportPreview').textContent = reportText;
+
+  // Show result
+  document.getElementById('screen-5').classList.remove('active');
+  document.getElementById('screen-6').classList.add('active');
+  document.getElementById('navBar').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════
+//  DOWNLOAD (simple text fallback)
+// ════════════════════════════════════════════════
+function downloadReport() {
+  const blob = new Blob([reportText], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Valuation_Report.txt';
+  a.click();
+  // Note: Full docx generation requires server-side or npm environment
+  // This demo saves the AI-generated text which can be pasted into Word
+  alert('Report saved as .txt\n\nFor full .docx with photos, connect this to the ValuPro backend. You can paste the report text into Word directly.');
+}
+
+function startNew() {
+  location.reload();
+}
+</script>
+</body>
+</html>
