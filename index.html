@@ -2,617 +2,488 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>ValuPro — Property Inspection App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ValuPro — Property Valuation</title>
+<link rel="manifest" href="data:application/json,{}">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
-  :root {
-    --ink: #1a1a2e;
-    --gold: #c9a84c;
-    --gold-light: #f0d98a;
-    --cream: #faf8f3;
-    --surface: #ffffff;
-    --muted: #6b6b7b;
-    --border: #e8e4d9;
-    --success: #2d7a4f;
-    --danger: #c0392b;
-    --shadow: 0 4px 24px rgba(26,26,46,0.10);
-  }
+:root {
+  --ink: #14142b;
+  --gold: #c9a84c;
+  --gold-light: #f5e9c0;
+  --cream: #faf8f3;
+  --surface: #ffffff;
+  --muted: #72728a;
+  --border: #e8e4d9;
+  --success: #2d7a4f;
+  --danger: #c0392b;
+  --shadow: 0 4px 24px rgba(20,20,43,0.10);
+  --shadow-lg: 0 8px 40px rgba(20,20,43,0.16);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-  }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overscroll-behavior: none;
+}
 
-  /* ── Header ── */
-  .app-header {
-    background: var(--ink);
-    color: #fff;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-  .app-header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    letter-spacing: 0.5px;
-  }
-  .app-header h1 span { color: var(--gold); }
-  .header-badge {
-    background: var(--gold);
-    color: var(--ink);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
-  }
+/* ── PAGES ── */
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; }
 
-  /* ── Progress bar ── */
-  .progress-wrap {
-    background: var(--ink);
-    padding: 0 20px 14px;
-  }
-  .progress-track {
-    height: 3px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--gold);
-    border-radius: 10px;
-    transition: width 0.4s ease;
-  }
-  .step-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-  }
-  .step-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.45);
-    font-weight: 500;
-    transition: color 0.3s;
-    cursor: pointer;
-  }
-  .step-label.active { color: var(--gold); }
-  .step-label.done { color: rgba(255,255,255,0.7); }
+/* ════════════════════════════════
+   LOGIN PAGE
+════════════════════════════════ */
+#page-login {
+  background: var(--ink);
+  align-items: center;
+  justify-content: center;
+  padding: 30px 24px;
+  position: relative;
+  overflow: hidden;
+}
+#page-login::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -80px;
+  width: 340px; height: 340px;
+  background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+#page-login::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; left: -60px;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(201,168,76,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.login-box {
+  width: 100%; max-width: 380px;
+  position: relative; z-index: 1;
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.login-logo h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 42px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.login-logo h1 span { color: var(--gold); }
+.login-logo p {
+  color: rgba(255,255,255,0.45);
+  font-size: 13px;
+  margin-top: 4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.login-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 28px 24px;
+  backdrop-filter: blur(10px);
+}
+.login-card h2 {
+  color: #fff;
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.l-field { margin-bottom: 14px; }
+.l-field label { display: block; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.l-field input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px;
+  transition: border-color 0.2s;
+}
+.l-field input::placeholder { color: rgba(255,255,255,0.25); }
+.l-field input:focus { outline: none; border-color: var(--gold); }
+.btn-login {
+  width: 100%; margin-top: 6px;
+  padding: 14px; border: none; border-radius: 12px;
+  background: var(--gold); color: var(--ink);
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn-login:hover { background: #b8953e; }
+.login-toggle { text-align: center; margin-top: 16px; color: rgba(255,255,255,0.45); font-size: 13px; }
+.login-toggle a { color: var(--gold); cursor: pointer; text-decoration: none; }
+.login-error { background: rgba(192,57,43,0.2); border: 1px solid rgba(192,57,43,0.4); color: #ff8a80; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; display: none; }
 
-  /* ── Content ── */
-  .content {
-    padding: 20px 16px 100px;
-    max-width: 640px;
-    margin: 0 auto;
-  }
+/* ════════════════════════════════
+   DASHBOARD
+════════════════════════════════ */
+#page-dashboard { background: var(--cream); }
 
-  /* ── Screens ── */
-  .screen { display: none; }
-  .screen.active { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.top-bar {
+  background: var(--ink);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.top-bar-logo { font-family: 'DM Serif Display', serif; font-size: 22px; color: #fff; }
+.top-bar-logo span { color: var(--gold); }
+.top-bar-right { display: flex; align-items: center; gap: 10px; }
+.user-chip { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 6px 12px; font-size: 12px; color: rgba(255,255,255,0.7); }
+.icon-btn { background: rgba(255,255,255,0.08); border: none; color: rgba(255,255,255,0.7); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
 
-  /* ── Section card ── */
-  .card {
-    background: var(--surface);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-  }
-  .card-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 17px;
-    color: var(--ink);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-title .icon {
-    width: 28px; height: 28px;
-    background: var(--ink);
-    color: var(--gold);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    flex-shrink: 0;
-  }
+.dash-content { padding: 20px 16px 100px; max-width: 640px; margin: 0 auto; }
 
-  /* ── Form elements ── */
-  .field { margin-bottom: 14px; }
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 6px;
-  }
-  .field input,
-  .field select,
-  .field textarea {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    background: var(--cream);
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    outline: none;
-    border-color: var(--gold);
-    background: #fff;
-  }
-  .field textarea { resize: vertical; min-height: 80px; }
+.dash-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px; margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface); border-radius: 14px; padding: 14px 12px;
+  text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.stat-card .s-val { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--ink); }
+.stat-card .s-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+.section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-hdr h3 { font-family: 'DM Serif Display', serif; font-size: 18px; }
+.section-hdr a { font-size: 13px; color: var(--gold); cursor: pointer; }
 
-  /* ── Type selector ── */
-  .type-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-  .type-btn {
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--cream);
-  }
-  .type-btn:hover { border-color: var(--gold); }
-  .type-btn.selected {
-    border-color: var(--gold);
-    background: #fdf8ea;
-  }
-  .type-btn .t-icon { font-size: 26px; display: block; margin-bottom: 4px; }
-  .type-btn .t-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+.insp-card {
+  background: var(--surface); border-radius: 14px; padding: 16px;
+  margin-bottom: 12px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  position: relative; overflow: hidden;
+}
+.insp-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.insp-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--gold);
+}
+.insp-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.insp-ref { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; }
+.insp-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.status-draft { background: #fff3cd; color: #856404; }
+.status-complete { background: #d1e7dd; color: #0a3622; }
+.insp-addr { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.insp-meta { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+.insp-meta span { display: flex; align-items: center; gap: 3px; }
 
-  /* ── Rating stars ── */
-  .star-row { display: flex; gap: 6px; }
-  .star {
-    font-size: 26px;
-    cursor: pointer;
-    color: var(--border);
-    transition: color 0.15s, transform 0.15s;
-    line-height: 1;
-  }
-  .star.lit { color: var(--gold); }
-  .star:hover { transform: scale(1.2); }
+.fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--gold); color: var(--ink); border: none;
+  font-size: 28px; cursor: pointer; box-shadow: 0 4px 20px rgba(201,168,76,0.5);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 50;
+}
+.fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(201,168,76,0.6); }
 
-  /* ── Photo upload ── */
-  .photo-zone {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    margin-bottom: 12px;
-  }
-  .photo-zone:hover, .photo-zone.drag-over {
-    border-color: var(--gold);
-    background: #fdf8ea;
-  }
-  .photo-zone .pz-icon { font-size: 32px; display: block; margin-bottom: 6px; }
-  .photo-zone p { font-size: 13px; color: var(--muted); }
-  .photo-zone p strong { color: var(--ink); }
-  #photoInput { display: none; }
+.empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
+.empty-state .e-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+.empty-state p { font-size: 15px; }
 
-  .photo-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .photo-thumb {
-    position: relative;
-    aspect-ratio: 1;
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--border);
-  }
-  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .photo-thumb .label-input {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(0,0,0,0.6);
-    padding: 4px 6px;
-  }
-  .photo-thumb .label-input input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 11px;
-    padding: 0;
-  }
-  .photo-thumb .label-input input:focus { outline: none; }
-  .photo-thumb .remove-btn {
-    position: absolute;
-    top: 4px; right: 4px;
-    background: rgba(192,57,43,0.85);
-    border: none;
-    color: #fff;
-    border-radius: 50%;
-    width: 22px; height: 22px;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1;
-  }
+/* ════════════════════════════════
+   INSPECTION APP
+════════════════════════════════ */
+#page-app { background: var(--cream); }
 
-  /* ── Tag chips ── */
-  .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip {
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--ink);
-    background: var(--cream);
-  }
-  .chip.selected { border-color: var(--gold); background: #fdf8ea; font-weight: 600; }
+.app-header {
+  background: var(--ink); color: #fff;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-header .back-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+.app-header h2 { font-family: 'DM Serif Display', serif; font-size: 18px; }
+.save-indicator { font-size: 11px; color: rgba(255,255,255,0.5); }
 
-  /* ── Condition meter ── */
-  .condition-wrap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  .cond-btn {
-    padding: 8px 4px;
-    border-radius: 8px;
-    border: 2px solid var(--border);
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--cream);
-  }
-  .cond-btn.sel { border-color: transparent; color: #fff; }
-  .cond-btn[data-val="1"].sel { background: #c0392b; }
-  .cond-btn[data-val="2"].sel { background: #e67e22; }
-  .cond-btn[data-val="3"].sel { background: #f1c40f; color: #333; }
-  .cond-btn[data-val="4"].sel { background: #27ae60; }
-  .cond-btn[data-val="5"].sel { background: #1e8449; }
+.progress-wrap { background: var(--ink); padding: 0 16px 12px; }
+.progress-track { height: 3px; background: rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gold); border-radius: 10px; transition: width 0.4s ease; }
+.step-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+.step-label { font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 500; transition: color 0.3s; }
+.step-label.active { color: var(--gold); font-weight: 700; }
+.step-label.done { color: rgba(255,255,255,0.6); }
 
-  /* ── Nav buttons ── */
-  .nav-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: #fff;
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
-    display: flex;
-    gap: 10px;
-    max-width: 640px;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-  }
-  .btn {
-    flex: 1;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-outline {
-    background: var(--cream);
-    color: var(--ink);
-    border: 1.5px solid var(--border);
-  }
-  .btn-primary {
-    background: var(--ink);
-    color: var(--gold);
-  }
-  .btn-primary:hover { background: #2d2d4e; }
-  .btn-gold {
-    background: var(--gold);
-    color: var(--ink);
-  }
-  .btn-gold:hover { background: #b8953e; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.app-content { padding: 16px 16px 100px; max-width: 640px; margin: 0 auto; }
 
-  /* ── AI Processing screen ── */
-  .ai-panel {
-    text-align: center;
-    padding: 40px 20px;
-  }
-  .ai-orb {
-    width: 80px; height: 80px;
-    background: var(--ink);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-    margin: 0 auto 20px;
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); }
-    50% { box-shadow: 0 0 0 20px rgba(201,168,76,0); }
-  }
-  .ai-panel h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  .ai-panel p { color: var(--muted); font-size: 15px; }
-  .ai-steps { text-align: left; margin-top: 30px; }
-  .ai-step {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-  .ai-step .s-icon { font-size: 20px; width: 28px; }
-  .ai-step .s-check { margin-left: auto; font-size: 18px; color: transparent; }
-  .ai-step.done .s-check { color: var(--success); }
-  .ai-step.running .s-check { color: var(--gold); animation: spin 1s linear infinite; display: inline-block; }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* screens */
+.screen { display: none; animation: fadeUp 0.3s ease; }
+.screen.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-  /* ── Result screen ── */
-  .result-hero {
-    text-align: center;
-    padding: 30px 20px 20px;
-  }
-  .result-hero .check { font-size: 56px; margin-bottom: 12px; }
-  .result-hero h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 8px; }
-  .result-hero p { color: var(--muted); }
+/* cards */
+.card { background: var(--surface); border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.card-title { font-family: 'DM Serif Display', serif; font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card-title .icon { width: 28px; height: 28px; background: var(--ink); color: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
 
-  .report-preview {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-    font-size: 14px;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    color: var(--ink);
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  .download-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    border: none;
-    background: var(--gold);
-    color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.2s;
-  }
-  .download-btn:hover { background: #b8953e; }
+/* form */
+.field { margin-bottom: 13px; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px; }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 11px 13px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--ink);
+  background: var(--cream); transition: border-color 0.2s; -webkit-appearance: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--gold); background: #fff; }
+.field textarea { resize: vertical; min-height: 80px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  /* ── Misc ── */
-  .divider { height: 1px; background: var(--border); margin: 16px 0; }
-  .info-text { font-size: 12px; color: var(--muted); margin-top: 4px; }
-  .required { color: var(--danger); }
+/* type selector */
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.type-btn { border: 2px solid var(--border); border-radius: 12px; padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream); }
+.type-btn.selected { border-color: var(--gold); background: #fdf8ea; }
+.type-btn .t-icon { font-size: 26px; display: block; margin-bottom: 4px; }
+.type-btn .t-label { font-size: 13px; font-weight: 600; }
 
-  .valuation-box {
-    background: var(--ink);
-    color: #fff;
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
-  .valuation-box .v-label { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .valuation-box .v-value { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--gold); }
-  .valuation-box .v-range { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+/* chips */
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { border: 1.5px solid var(--border); border-radius: 20px; padding: 6px 13px; font-size: 13px; cursor: pointer; transition: all 0.2s; background: var(--cream); }
+.chip.selected { border-color: var(--gold); background: #fdf8ea; font-weight: 600; }
+
+/* condition */
+.condition-wrap { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; }
+.cond-btn { padding: 8px 4px; border-radius: 8px; border: 2px solid var(--border); text-align: center; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; background: var(--cream); }
+.cond-btn.sel { border-color: transparent; color: #fff; }
+.cond-btn[data-val="1"].sel { background: #c0392b; }
+.cond-btn[data-val="2"].sel { background: #e67e22; }
+.cond-btn[data-val="3"].sel { background: #f1c40f; color: #333; }
+.cond-btn[data-val="4"].sel { background: #27ae60; }
+.cond-btn[data-val="5"].sel { background: #1e8449; }
+
+/* stars */
+.star-row { display: flex; gap: 6px; }
+.star { font-size: 28px; cursor: pointer; color: var(--border); transition: color 0.15s; }
+.star.lit { color: var(--gold); }
+
+/* photos */
+.photo-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
+.photo-zone:hover { border-color: var(--gold); background: #fdf8ea; }
+.photo-zone .pz-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+.photo-zone p { font-size: 13px; color: var(--muted); }
+.photo-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.photo-thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--border); }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb .pt-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); padding: 4px 6px; }
+.photo-thumb .pt-label input { width: 100%; background: transparent; border: none; color: #fff; font-size: 11px; padding: 0; font-family: 'DM Sans',sans-serif; }
+.photo-thumb .pt-label input:focus { outline: none; }
+.photo-thumb .rm-btn { position: absolute; top: 4px; right: 4px; background: rgba(192,57,43,0.85); border: none; color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.upload-progress { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+/* valuation box */
+.val-box { background: var(--ink); color: #fff; border-radius: 14px; padding: 18px; text-align: center; margin-top: 12px; }
+.val-box .v-lbl { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.val-box .v-val { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--gold); }
+.val-box .v-range { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+/* nav bar */
+.nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); padding: 12px 16px; display: flex; gap: 10px; z-index: 90; }
+.btn { flex: 1; padding: 13px; border-radius: 12px; border: none; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-outline { background: var(--cream); color: var(--ink); border: 1.5px solid var(--border); }
+.btn-primary { background: var(--ink); color: var(--gold); }
+.btn-gold { background: var(--gold); color: var(--ink); }
+
+/* ════════ PROCESSING ════════ */
+#page-processing {
+  background: var(--ink);
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+.proc-orb { width: 90px; height: 90px; background: rgba(201,168,76,0.12); border: 2px solid rgba(201,168,76,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 24px; animation: breathe 2s ease-in-out infinite; }
+@keyframes breathe { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,168,76,0.3);} 50%{transform:scale(1.05);box-shadow:0 0 0 20px rgba(201,168,76,0);} }
+.proc-box { text-align: center; width: 100%; max-width: 380px; }
+.proc-box h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #fff; margin-bottom: 8px; }
+.proc-box p { color: rgba(255,255,255,0.45); font-size: 14px; margin-bottom: 32px; }
+.proc-step { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.6); font-size: 14px; }
+.proc-step .ps-icon { font-size: 18px; width: 26px; flex-shrink: 0; }
+.proc-step .ps-check { margin-left: auto; font-size: 16px; }
+.proc-step.done { color: rgba(255,255,255,0.9); }
+.proc-step.running { color: #fff; }
+.spin { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ════════ REPORT ════════ */
+#page-report { background: var(--cream); }
+.report-header { background: var(--ink); padding: 20px 16px 24px; text-align: center; }
+.report-header .check { font-size: 48px; margin-bottom: 10px; }
+.report-header h2 { font-family: 'DM Serif Display', serif; font-size: 24px; color: #fff; margin-bottom: 4px; }
+.report-header p { color: rgba(255,255,255,0.45); font-size: 13px; }
+.report-content { padding: 16px 16px 100px; max-width: 640px; margin: 0 auto; }
+.report-val-box { background: var(--ink); color: #fff; border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 16px; }
+.report-val-box .rv-lbl { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.report-val-box .rv-val { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--gold); }
+.report-val-box .rv-range { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+.report-preview { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; font-size: 13px; line-height: 1.8; white-space: pre-wrap; color: var(--ink); max-height: 380px; overflow-y: auto; box-shadow: var(--shadow); }
+.dl-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--gold); color: var(--ink); font-family: 'DM Sans',sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+.new-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: transparent; color: var(--ink); font-family: 'DM Sans',sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+/* misc */
+.info-text { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <h1>Valu<span>Pro</span></h1>
-  <span class="header-badge">FIELD APP</span>
-</div>
-<div class="progress-wrap">
-  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
-  <div class="step-labels">
-    <span class="step-label active" onclick="goTo(0)">Basics</span>
-    <span class="step-label" onclick="goTo(1)">Property</span>
-    <span class="step-label" onclick="goTo(2)">Condition</span>
-    <span class="step-label" onclick="goTo(3)">Photos</span>
-    <span class="step-label" onclick="goTo(4)">Market</span>
-  </div>
-</div>
-
-<div class="content">
-
-  <!-- ═══════════════════════════════════════ SCREEN 0: BASICS ═══ -->
-  <div class="screen active" id="screen-0">
-    <div class="card">
-      <div class="card-title"><span class="icon">📋</span> Inspection Basics</div>
-      <div class="field">
-        <label>Property Reference No.</label>
-        <input type="text" id="refNo" placeholder="e.g. VP-2024-0421">
-      </div>
-      <div class="field">
-        <label>Inspection Date <span class="required">*</span></label>
-        <input type="date" id="inspDate">
-      </div>
-      <div class="field">
-        <label>Valuer Name <span class="required">*</span></label>
-        <input type="text" id="valueName" placeholder="Your full name">
-      </div>
-      <div class="field">
-        <label>Client / Instructed By</label>
-        <input type="text" id="clientName" placeholder="Bank / Individual / Company">
-      </div>
-      <div class="field">
-        <label>Purpose of Valuation</label>
-        <select id="valPurpose">
-          <option value="">Select purpose...</option>
-          <option>Mortgage / Home Loan</option>
-          <option>Sale / Purchase</option>
-          <option>Insurance</option>
-          <option>Legal / Court</option>
-          <option>Rental Assessment</option>
-          <option>Stamp Duty</option>
-          <option>Other</option>
-        </select>
-      </div>
+<!-- ═══════════════════════ LOGIN ═══════════════════════ -->
+<div class="page active" id="page-login">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>Valu<span>Pro</span></h1>
+      <p>Property Valuation System</p>
     </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">📍</span> Location</div>
-      <div class="field">
-        <label>Full Address <span class="required">*</span></label>
-        <input type="text" id="addr1" placeholder="Street / Plot / Flat No.">
+    <div class="login-card">
+      <h2 id="loginTitle">Welcome back</h2>
+      <div class="login-error" id="loginError"></div>
+      <div class="l-field" id="nameField" style="display:none">
+        <label>Full Name</label>
+        <input type="text" id="userName" placeholder="Your name">
       </div>
-      <div class="field-row">
-        <div class="field">
-          <label>City</label>
-          <input type="text" id="city" placeholder="City">
-        </div>
-        <div class="field">
-          <label>Pin / ZIP Code</label>
-          <input type="text" id="pincode" placeholder="000000">
-        </div>
+      <div class="l-field">
+        <label>Email Address</label>
+        <input type="email" id="userEmail" placeholder="valuer@company.com">
       </div>
-      <div class="field">
-        <label>Locality / Area</label>
-        <input type="text" id="locality" placeholder="Colony, Sector, Nagar...">
+      <div class="l-field">
+        <label>Password</label>
+        <input type="password" id="userPassword" placeholder="••••••••">
       </div>
-      <div class="field">
-        <label>GPS Coordinates</label>
-        <input type="text" id="gps" placeholder="Tap to auto-fill" id="gpsField" readonly>
-        <div class="info-text">📡 Auto-detected from device GPS</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">🏗️</span> Property Type</div>
-      <div class="type-grid">
-        <div class="type-btn selected" onclick="selectType(this,'Residential')" data-type="Residential">
-          <span class="t-icon">🏠</span>
-          <span class="t-label">Residential</span>
-        </div>
-        <div class="type-btn" onclick="selectType(this,'Commercial')" data-type="Commercial">
-          <span class="t-icon">🏢</span>
-          <span class="t-label">Commercial</span>
-        </div>
-        <div class="type-btn" onclick="selectType(this,'Industrial')" data-type="Industrial">
-          <span class="t-icon">🏭</span>
-          <span class="t-label">Industrial</span>
-        </div>
-        <div class="type-btn" onclick="selectType(this,'Land')" data-type="Land">
-          <span class="t-icon">🌿</span>
-          <span class="t-label">Land / Plot</span>
-        </div>
+      <button class="btn-login" id="loginBtn" onclick="handleAuth()">Sign In</button>
+      <div class="login-toggle">
+        <span id="toggleText">Don't have an account?</span>
+        <a onclick="toggleAuthMode()"> <span id="toggleLink">Sign up</span></a>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ═══════════════════════════════════════ SCREEN 1: PROPERTY DETAILS ═══ -->
-  <div class="screen" id="screen-1">
-    <!-- Residential Fields -->
-    <div id="res-fields">
-      <div class="card">
-        <div class="card-title"><span class="icon">📐</span> Measurements</div>
-        <div class="field-row">
-          <div class="field">
-            <label>Plot Area (sq.ft)</label>
-            <input type="number" id="plotArea" placeholder="0">
-          </div>
-          <div class="field">
-            <label>Built-up Area (sq.ft)</label>
-            <input type="number" id="builtArea" placeholder="0">
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Carpet Area (sq.ft)</label>
-            <input type="number" id="carpetArea" placeholder="0">
-          </div>
-          <div class="field">
-            <label>No. of Floors</label>
-            <input type="number" id="floors" placeholder="1" min="1">
-          </div>
-        </div>
+<!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="top-bar">
+    <span class="top-bar-logo">Valu<span>Pro</span></span>
+    <div class="top-bar-right">
+      <span class="user-chip" id="userChip">...</span>
+      <button class="icon-btn" onclick="signOut()" title="Sign out">⏻</button>
+    </div>
+  </div>
+  <div class="dash-content">
+    <div class="dash-stats">
+      <div class="stat-card"><div class="s-val" id="statTotal">0</div><div class="s-lbl">Total</div></div>
+      <div class="stat-card"><div class="s-val" id="statDone">0</div><div class="s-lbl">Complete</div></div>
+      <div class="stat-card"><div class="s-val" id="statDraft">0</div><div class="s-lbl">Draft</div></div>
+    </div>
+    <div class="section-hdr">
+      <h3>Recent Inspections</h3>
+    </div>
+    <div id="inspectionsList">
+      <div class="empty-state">
+        <span class="e-icon">📋</span>
+        <p>No inspections yet.<br>Tap + to start your first one.</p>
       </div>
+    </div>
+  </div>
+  <button class="fab" onclick="startNewInspection()">+</button>
+</div>
 
-      <div class="card">
-        <div class="card-title"><span class="icon">🛋️</span> Configuration</div>
-        <div class="field-row">
-          <div class="field">
-            <label>BHK / Type</label>
-            <select id="bhk">
-              <option>1 BHK</option><option>2 BHK</option><option>3 BHK</option>
-              <option>4 BHK</option><option>5+ BHK</option><option>Studio</option>
-              <option>Independent House</option><option>Villa</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Bedrooms</label>
-            <input type="number" id="bedrooms" placeholder="2" min="0">
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Bathrooms</label>
-            <input type="number" id="bathrooms" placeholder="1" min="0">
-          </div>
-          <div class="field">
-            <label>Year Built</label>
-            <input type="number" id="yearBuilt" placeholder="2010">
-          </div>
-        </div>
-      </div>
+<!-- ═══════════════════════ INSPECTION APP ═══════════════════════ -->
+<div class="page" id="page-app">
+  <div class="app-header">
+    <button class="back-btn" onclick="goToDashboard()">← Dashboard</button>
+    <h2>New Inspection</h2>
+    <span class="save-indicator" id="saveIndicator">💾 Saving...</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+    <div class="step-labels">
+      <span class="step-label active">Basics</span>
+      <span class="step-label">Property</span>
+      <span class="step-label">Condition</span>
+      <span class="step-label">Photos</span>
+      <span class="step-label">Market</span>
+    </div>
+  </div>
+  <div class="app-content">
 
+    <!-- SCREEN 0: BASICS -->
+    <div class="screen active" id="sc0">
       <div class="card">
-        <div class="card-title"><span class="icon">🏗️</span> Construction</div>
-        <div class="field">
-          <label>Construction Type</label>
-          <select id="consType">
-            <option>RCC / Pucca</option>
-            <option>Load Bearing</option>
-            <option>Steel Frame</option>
-            <option>Pre-fabricated</option>
-            <option>Kuccha / Semi</option>
+        <div class="card-title"><span class="icon">📋</span> Inspection Basics</div>
+        <div class="field"><label>Reference No.</label><input type="text" id="refNo" placeholder="Auto-generated"></div>
+        <div class="field"><label>Inspection Date</label><input type="date" id="inspDate"></div>
+        <div class="field"><label>Client / Instructed By</label><input type="text" id="clientName" placeholder="Bank / Individual / Company"></div>
+        <div class="field"><label>Purpose of Valuation</label>
+          <select id="valPurpose">
+            <option>Mortgage / Home Loan</option><option>Sale / Purchase</option>
+            <option>Insurance</option><option>Legal / Court</option>
+            <option>Rental Assessment</option><option>Stamp Duty</option><option>Other</option>
           </select>
         </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📍</span> Location</div>
+        <div class="field"><label>Full Address</label><input type="text" id="addr1" placeholder="Plot / Flat / Street"></div>
+        <div class="field-row">
+          <div class="field"><label>City</label><input type="text" id="city" placeholder="City"></div>
+          <div class="field"><label>Pin Code</label><input type="number" id="pincode" placeholder="000000"></div>
+        </div>
+        <div class="field"><label>Locality / Area</label><input type="text" id="locality" placeholder="Colony, Sector..."></div>
         <div class="field">
-          <label>Amenities Present</label>
+          <label>GPS Coordinates</label>
+          <input type="text" id="gps" placeholder="Detecting..." readonly>
+          <div class="info-text">📡 Auto-detected from device</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🏗️</span> Property Type</div>
+        <div class="type-grid">
+          <div class="type-btn selected" onclick="selectType(this,'Residential')"><span class="t-icon">🏠</span><span class="t-label">Residential</span></div>
+          <div class="type-btn" onclick="selectType(this,'Commercial')"><span class="t-icon">🏢</span><span class="t-label">Commercial</span></div>
+          <div class="type-btn" onclick="selectType(this,'Industrial')"><span class="t-icon">🏭</span><span class="t-label">Industrial</span></div>
+          <div class="type-btn" onclick="selectType(this,'Land')"><span class="t-icon">🌿</span><span class="t-label">Land / Plot</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 1: PROPERTY -->
+    <div class="screen" id="sc1">
+      <div id="res-f">
+        <div class="card">
+          <div class="card-title"><span class="icon">📐</span> Measurements</div>
+          <div class="field-row">
+            <div class="field"><label>Plot Area (sq.ft)</label><input type="number" id="plotArea" placeholder="0"></div>
+            <div class="field"><label>Built-up (sq.ft)</label><input type="number" id="builtArea" placeholder="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Carpet Area (sq.ft)</label><input type="number" id="carpetArea" placeholder="0"></div>
+            <div class="field"><label>No. of Floors</label><input type="number" id="floors" placeholder="1"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">🛋️</span> Configuration</div>
+          <div class="field-row">
+            <div class="field"><label>BHK Type</label>
+              <select id="bhk"><option>1 BHK</option><option>2 BHK</option><option>3 BHK</option><option>4 BHK</option><option>5+ BHK</option><option>Studio</option><option>Independent House</option><option>Villa</option></select>
+            </div>
+            <div class="field"><label>Year Built</label><input type="number" id="yearBuilt" placeholder="2010"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Bedrooms</label><input type="number" id="bedrooms" placeholder="2"></div>
+            <div class="field"><label>Bathrooms</label><input type="number" id="bathrooms" placeholder="1"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">✨</span> Amenities</div>
           <div class="chip-wrap" id="amenityChips">
             <span class="chip" onclick="toggleChip(this)">Parking</span>
             <span class="chip" onclick="toggleChip(this)">Lift</span>
@@ -628,565 +499,505 @@
           </div>
         </div>
       </div>
+      <div id="com-f" style="display:none">
+        <div class="card">
+          <div class="card-title"><span class="icon">📐</span> Commercial Measurements</div>
+          <div class="field-row"><div class="field"><label>Ground Floor (sq.ft)</label><input type="number" id="gfArea" placeholder="0"></div><div class="field"><label>Total Area (sq.ft)</label><input type="number" id="totalCovered" placeholder="0"></div></div>
+          <div class="field"><label>Usage Type</label><select id="comUsage"><option>Office Space</option><option>Retail Shop</option><option>Showroom</option><option>Hotel / Restaurant</option><option>Mall</option><option>Mixed Use</option></select></div>
+          <div class="field-row"><div class="field"><label>Floors</label><input type="number" id="comFloors" placeholder="2"></div><div class="field"><label>Year Built</label><input type="number" id="comYear" placeholder="2015"></div></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="icon">🏢</span> Amenities</div><div class="chip-wrap"><span class="chip" onclick="toggleChip(this)">Basement Parking</span><span class="chip" onclick="toggleChip(this)">Lifts</span><span class="chip" onclick="toggleChip(this)">Escalators</span><span class="chip" onclick="toggleChip(this)">Fire Safety</span><span class="chip" onclick="toggleChip(this)">Central AC</span><span class="chip" onclick="toggleChip(this)">DG Backup</span><span class="chip" onclick="toggleChip(this)">Loading Bay</span></div></div>
+      </div>
+      <div id="ind-f" style="display:none">
+        <div class="card">
+          <div class="card-title"><span class="icon">📐</span> Industrial Details</div>
+          <div class="field-row"><div class="field"><label>Plot Area (sq.ft)</label><input type="number" id="indPlot" placeholder="0"></div><div class="field"><label>Shed Area (sq.ft)</label><input type="number" id="indShed" placeholder="0"></div></div>
+          <div class="field"><label>Type</label><select id="indType"><option>Manufacturing Unit</option><option>Warehouse</option><option>Cold Storage</option><option>Processing Plant</option><option>Workshop</option></select></div>
+          <div class="field-row"><div class="field"><label>Ceiling Ht (ft)</label><input type="number" id="ceilH" placeholder="20"></div><div class="field"><label>Power (KVA)</label><input type="number" id="powerKVA" placeholder="0"></div></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="icon">🔧</span> Features</div><div class="chip-wrap"><span class="chip" onclick="toggleChip(this)">Overhead Crane</span><span class="chip" onclick="toggleChip(this)">Loading Dock</span><span class="chip" onclick="toggleChip(this)">Rail Siding</span><span class="chip" onclick="toggleChip(this)">Effluent Plant</span><span class="chip" onclick="toggleChip(this)">Transformer</span><span class="chip" onclick="toggleChip(this)">Borewell</span><span class="chip" onclick="toggleChip(this)">Admin Block</span></div></div>
+      </div>
+      <div id="land-f" style="display:none">
+        <div class="card">
+          <div class="card-title"><span class="icon">📐</span> Land Details</div>
+          <div class="field-row"><div class="field"><label>Area (sq.ft)</label><input type="number" id="landArea" placeholder="0"></div><div class="field"><label>Area (sq.yd)</label><input type="number" id="landYard" placeholder="0"></div></div>
+          <div class="field"><label>Zoning</label><select id="landZone"><option>Residential Zone</option><option>Commercial Zone</option><option>Industrial Zone</option><option>Agricultural</option><option>Mixed Use</option><option>NA / Non-Agricultural</option></select></div>
+          <div class="field-row"><div class="field"><label>Road Width (ft)</label><input type="number" id="roadW" placeholder="30"></div><div class="field"><label>Corner Plot?</label><select id="cornerPlot"><option>No</option><option>Yes</option></select></div></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="icon">📄</span> Title & Docs</div><div class="chip-wrap"><span class="chip" onclick="toggleChip(this)">Clear Title</span><span class="chip" onclick="toggleChip(this)">Encumbrance Free</span><span class="chip" onclick="toggleChip(this)">7/12 Verified</span><span class="chip" onclick="toggleChip(this)">Layout Approved</span><span class="chip" onclick="toggleChip(this)">NA Permission</span><span class="chip" onclick="toggleChip(this)">Demarcated</span></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🌐</span> Connectivity</div>
+        <div class="field-row">
+          <div class="field"><label>Road Access</label><select id="roadAccess"><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
+          <div class="field"><label>Public Transport</label><select id="transport"><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select></div>
+        </div>
+        <div class="field"><label>Nearby Landmarks</label><input type="text" id="landmarks" placeholder="School, Hospital, Metro..."></div>
+      </div>
     </div>
 
-    <!-- Commercial Fields -->
-    <div id="com-fields" style="display:none">
+    <!-- SCREEN 2: CONDITION -->
+    <div class="screen" id="sc2">
       <div class="card">
-        <div class="card-title"><span class="icon">📐</span> Commercial Measurements</div>
-        <div class="field-row">
-          <div class="field"><label>Ground Floor Area (sq.ft)</label><input type="number" id="gfArea" placeholder="0"></div>
-          <div class="field"><label>Total Covered Area</label><input type="number" id="totalCovered" placeholder="0"></div>
-        </div>
-        <div class="field"><label>Usage / Occupation Type</label>
-          <select id="comUsage">
-            <option>Office Space</option><option>Retail Shop</option><option>Showroom</option>
-            <option>Hotel / Restaurant</option><option>Mall / Shopping Center</option><option>Mixed Use</option>
-          </select>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>No. of Floors</label><input type="number" id="comFloors" placeholder="2"></div>
-          <div class="field"><label>Year Built</label><input type="number" id="comYear" placeholder="2015"></div>
+        <div class="card-title"><span class="icon">🔍</span> Overall Condition</div>
+        <div class="condition-wrap">
+          <div class="cond-btn" data-val="1" onclick="setCond(this)">Very Poor</div>
+          <div class="cond-btn" data-val="2" onclick="setCond(this)">Poor</div>
+          <div class="cond-btn sel" data-val="3" onclick="setCond(this)">Average</div>
+          <div class="cond-btn" data-val="4" onclick="setCond(this)">Good</div>
+          <div class="cond-btn" data-val="5" onclick="setCond(this)">Excellent</div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="icon">📊</span> Commercial Features</div>
-        <div class="field"><label>Commercial Amenities</label>
+        <div class="card-title"><span class="icon">🏗️</span> Structural</div>
+        <div class="field"><label>Foundation</label><select id="foundation"><option>Good</option><option>Average</option><option>Needs Repair</option><option>Poor</option></select></div>
+        <div class="field"><label>Walls</label><select id="walls"><option>Good</option><option>Minor Cracks</option><option>Major Cracks</option><option>Needs Replastering</option></select></div>
+        <div class="field"><label>Roof / Terrace</label><select id="roof"><option>Good</option><option>Minor Seepage</option><option>Major Seepage</option><option>Needs Replacement</option></select></div>
+        <div class="field"><label>Flooring</label><select id="flooring"><option>Marble</option><option>Vitrified Tiles</option><option>Ceramic Tiles</option><option>Mosaic</option><option>Cement</option><option>Wooden</option></select></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">⚡</span> Utilities</div>
+        <div class="field-row">
+          <div class="field"><label>Electricity</label><select id="electricity"><option>Govt Supply</option><option>Solar + Grid</option><option>Generator Only</option><option>Absent</option></select></div>
+          <div class="field"><label>Water</label><select id="water"><option>Municipal + Borewell</option><option>Municipal Only</option><option>Borewell Only</option><option>Tanker</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Drainage</label><select id="drainage"><option>Connected</option><option>Septic Tank</option><option>Not Available</option></select></div>
+          <div class="field"><label>Legal Status</label><select id="legalStatus"><option>Clear</option><option>Disputed</option><option>Under Litigation</option><option>Encroachment</option></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📝</span> Observations</div>
+        <div class="field"><label>Site Observations</label><textarea id="observations" placeholder="Key findings, special attributes, defects noticed..."></textarea></div>
+        <div class="field"><label>Location Rating</label>
+          <div class="star-row" id="locStars">
+            <span class="star lit" onclick="setStars(1)">★</span>
+            <span class="star lit" onclick="setStars(2)">★</span>
+            <span class="star lit" onclick="setStars(3)">★</span>
+            <span class="star" onclick="setStars(4)">★</span>
+            <span class="star" onclick="setStars(5)">★</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: PHOTOS -->
+    <div class="screen" id="sc3">
+      <div class="card">
+        <div class="card-title"><span class="icon">📸</span> Site Photographs</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Capture: Front, Sides, Interior, Roof, Street view</p>
+        <div class="photo-zone" onclick="document.getElementById('photoInput').click()">
+          <span class="pz-icon">📷</span>
+          <p><strong>Tap to capture or upload photos</strong></p>
+          <p>Multiple photos allowed</p>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" multiple capture="environment" style="display:none" onchange="handlePhotos(this)">
+        <div class="upload-progress" id="uploadProgress"></div>
+        <div class="photo-grid" id="photoGrid"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">✅</span> Coverage Checklist</div>
+        <div class="chip-wrap">
+          <span class="chip" onclick="toggleChip(this)">Front Elevation</span>
+          <span class="chip" onclick="toggleChip(this)">Left Side</span>
+          <span class="chip" onclick="toggleChip(this)">Right Side</span>
+          <span class="chip" onclick="toggleChip(this)">Rear View</span>
+          <span class="chip" onclick="toggleChip(this)">Main Entrance</span>
+          <span class="chip" onclick="toggleChip(this)">Living Area</span>
+          <span class="chip" onclick="toggleChip(this)">Kitchen</span>
+          <span class="chip" onclick="toggleChip(this)">Bedrooms</span>
+          <span class="chip" onclick="toggleChip(this)">Bathrooms</span>
+          <span class="chip" onclick="toggleChip(this)">Terrace / Roof</span>
+          <span class="chip" onclick="toggleChip(this)">Parking</span>
+          <span class="chip" onclick="toggleChip(this)">Street View</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: MARKET -->
+    <div class="screen" id="sc4">
+      <div class="card">
+        <div class="card-title"><span class="icon">📊</span> Market Survey</div>
+        <div class="field"><label>Market Trend</label>
           <div class="chip-wrap">
-            <span class="chip" onclick="toggleChip(this)">Basement Parking</span>
-            <span class="chip" onclick="toggleChip(this)">Lifts</span>
-            <span class="chip" onclick="toggleChip(this)">Escalators</span>
-            <span class="chip" onclick="toggleChip(this)">Fire Safety</span>
-            <span class="chip" onclick="toggleChip(this)">Central AC</span>
-            <span class="chip" onclick="toggleChip(this)">DG Backup</span>
-            <span class="chip" onclick="toggleChip(this)">Loading Bay</span>
-            <span class="chip" onclick="toggleChip(this)">Canteen</span>
+            <span class="chip selected" onclick="selectOne(this,'trend')">📈 Rising</span>
+            <span class="chip" onclick="selectOne(this,'trend')">➡️ Stable</span>
+            <span class="chip" onclick="selectOne(this,'trend')">📉 Declining</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Industrial Fields -->
-    <div id="ind-fields" style="display:none">
-      <div class="card">
-        <div class="card-title"><span class="icon">📐</span> Industrial Measurements</div>
-        <div class="field-row">
-          <div class="field"><label>Total Plot Area (sq.ft)</label><input type="number" id="indPlot" placeholder="0"></div>
-          <div class="field"><label>Factory/Shed Area</label><input type="number" id="indShed" placeholder="0"></div>
-        </div>
-        <div class="field"><label>Type of Industrial Unit</label>
-          <select id="indType">
-            <option>Manufacturing Unit</option><option>Warehouse / Godown</option>
-            <option>Cold Storage</option><option>Processing Plant</option><option>Workshop</option>
-          </select>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Ceiling Height (ft)</label><input type="number" id="ceilHeight" placeholder="20"></div>
-          <div class="field"><label>Power Load (KVA)</label><input type="number" id="powerLoad" placeholder="0"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span class="icon">🔧</span> Industrial Features</div>
-        <div class="chip-wrap">
-          <span class="chip" onclick="toggleChip(this)">Overhead Crane</span>
-          <span class="chip" onclick="toggleChip(this)">Loading Dock</span>
-          <span class="chip" onclick="toggleChip(this)">Rail Siding</span>
-          <span class="chip" onclick="toggleChip(this)">Effluent Plant</span>
-          <span class="chip" onclick="toggleChip(this)">Transformer</span>
-          <span class="chip" onclick="toggleChip(this)">Water Borewell</span>
-          <span class="chip" onclick="toggleChip(this)">Admin Block</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Land Fields -->
-    <div id="land-fields" style="display:none">
-      <div class="card">
-        <div class="card-title"><span class="icon">📐</span> Land Details</div>
-        <div class="field-row">
-          <div class="field"><label>Area (sq.ft)</label><input type="number" id="landArea" placeholder="0"></div>
-          <div class="field"><label>Area (sq.yd)</label><input type="number" id="landYard" placeholder="0"></div>
-        </div>
-        <div class="field"><label>Land Use Zoning</label>
-          <select id="landZone">
-            <option>Residential Zone</option><option>Commercial Zone</option>
-            <option>Industrial Zone</option><option>Agricultural</option>
-            <option>Mixed Use</option><option>NA / Non-Agricultural</option>
-          </select>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Road Width (ft)</label><input type="number" id="roadWidth" placeholder="30"></div>
-          <div class="field"><label>Corner Plot?</label>
-            <select id="cornerPlot"><option>No</option><option>Yes</option></select>
+        <div class="field" style="margin-top:12px"><label>Market Liquidity</label>
+          <div class="chip-wrap">
+            <span class="chip selected" onclick="selectOne(this,'liq')">🔥 High Demand</span>
+            <span class="chip" onclick="selectOne(this,'liq')">⚖️ Moderate</span>
+            <span class="chip" onclick="selectOne(this,'liq')">🧊 Low Demand</span>
           </div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="icon">📄</span> Title & Documents</div>
-        <div class="chip-wrap">
-          <span class="chip" onclick="toggleChip(this)">Clear Title</span>
-          <span class="chip" onclick="toggleChip(this)">Encumbrance Free</span>
-          <span class="chip" onclick="toggleChip(this)">7/12 Verified</span>
-          <span class="chip" onclick="toggleChip(this)">Layout Approved</span>
-          <span class="chip" onclick="toggleChip(this)">NA Permission</span>
-          <span class="chip" onclick="toggleChip(this)">Demarcated</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">🌐</span> Connectivity & Infrastructure</div>
-      <div class="field-row">
-        <div class="field"><label>Road Access</label>
-          <select id="roadAccess"><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
-        </div>
-        <div class="field"><label>Public Transport</label>
-          <select id="transport"><option>Excellent</option><option>Good</option><option>Average</option><option>Poor</option></select>
-        </div>
-      </div>
-      <div class="field"><label>Nearby Landmarks</label>
-        <input type="text" id="landmarks" placeholder="School, Hospital, Market, Metro...">
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════ SCREEN 2: CONDITION ═══ -->
-  <div class="screen" id="screen-2">
-    <div class="card">
-      <div class="card-title"><span class="icon">🔍</span> Overall Condition</div>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Rate overall property condition</p>
-      <div class="condition-wrap">
-        <div class="cond-btn" data-val="1" onclick="setCond(this)">Very Poor</div>
-        <div class="cond-btn" data-val="2" onclick="setCond(this)">Poor</div>
-        <div class="cond-btn sel" data-val="3" onclick="setCond(this)">Average</div>
-        <div class="cond-btn" data-val="4" onclick="setCond(this)">Good</div>
-        <div class="cond-btn" data-val="5" onclick="setCond(this)">Excellent</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">🏗️</span> Structural Assessment</div>
-      <div class="field">
-        <label>Foundation</label>
-        <select id="foundation"><option>Good</option><option>Average</option><option>Needs Repair</option><option>Poor</option></select>
-      </div>
-      <div class="field">
-        <label>Walls</label>
-        <select id="walls"><option>Good</option><option>Average — Minor Cracks</option><option>Major Cracks</option><option>Needs Replastering</option></select>
-      </div>
-      <div class="field">
-        <label>Roof / Terrace</label>
-        <select id="roof"><option>Good</option><option>Minor Seepage</option><option>Major Seepage</option><option>Needs Replacement</option></select>
-      </div>
-      <div class="field">
-        <label>Flooring</label>
-        <select id="flooring"><option>Marble</option><option>Vitrified Tiles</option><option>Ceramic Tiles</option><option>Mosaic</option><option>Cement</option><option>Wooden</option></select>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">⚡</span> Utilities</div>
-      <div class="field-row">
-        <div class="field"><label>Electricity</label>
-          <select id="electricity"><option>Government Supply</option><option>Solar + Grid</option><option>Generator Only</option><option>Absent</option></select>
-        </div>
-        <div class="field"><label>Water Supply</label>
-          <select id="water"><option>Municipal + Borewell</option><option>Municipal Only</option><option>Borewell Only</option><option>Tanker</option></select>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Drainage / Sewage</label>
-          <select id="drainage"><option>Connected</option><option>Septic Tank</option><option>Not Available</option></select>
-        </div>
-        <div class="field"><label>Legal Status</label>
-          <select id="legalStatus"><option>Clear</option><option>Disputed</option><option>Under Litigation</option><option>Encroachment</option></select>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">📝</span> Valuer's Site Observations</div>
-      <div class="field">
-        <label>Key Observations</label>
-        <textarea id="observations" placeholder="Note anything specific observed during inspection — unusual features, defects, encroachments, special attributes..."></textarea>
-      </div>
-      <div class="field">
-        <label>Overall Location Rating</label>
-        <div class="star-row" id="locStars">
-          <span class="star lit" data-v="1" onclick="setStars('locStars',1)">★</span>
-          <span class="star lit" data-v="2" onclick="setStars('locStars',2)">★</span>
-          <span class="star lit" data-v="3" onclick="setStars('locStars',3)">★</span>
-          <span class="star" data-v="4" onclick="setStars('locStars',4)">★</span>
-          <span class="star" data-v="5" onclick="setStars('locStars',5)">★</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════ SCREEN 3: PHOTOS ═══ -->
-  <div class="screen" id="screen-3">
-    <div class="card">
-      <div class="card-title"><span class="icon">📸</span> Site Photographs</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Capture photos of: Front Elevation, Sides, Interior, Roof, Street view, Neighbourhood</p>
-      <div class="photo-zone" onclick="document.getElementById('photoInput').click()" id="photoZone">
-        <span class="pz-icon">📷</span>
-        <p><strong>Tap to take photos or upload</strong></p>
-        <p>Supports JPG, PNG — Multiple allowed</p>
-      </div>
-      <input type="file" id="photoInput" accept="image/*" multiple capture="environment" onchange="handlePhotos(this)">
-      <div class="photo-grid" id="photoGrid"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">📋</span> Photo Coverage Checklist</div>
-      <div class="chip-wrap" id="photoChecks">
-        <span class="chip" onclick="toggleChip(this)">Front Elevation ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Left Side ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Right Side ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Rear View ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Main Entrance ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Living Area ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Kitchen ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Bedrooms ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Bathrooms ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Terrace / Roof ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Parking ✓</span>
-        <span class="chip" onclick="toggleChip(this)">Street View ✓</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════ SCREEN 4: MARKET ═══ -->
-  <div class="screen" id="screen-4">
-    <div class="card">
-      <div class="card-title"><span class="icon">📊</span> Market Survey</div>
-      <div class="field">
-        <label>Market Trend</label>
-        <div class="chip-wrap">
-          <span class="chip selected" onclick="selectOne(this,'trend')">📈 Rising</span>
-          <span class="chip" onclick="selectOne(this,'trend')">➡️ Stable</span>
-          <span class="chip" onclick="selectOne(this,'trend')">📉 Declining</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>Market Liquidity</label>
-        <div class="chip-wrap">
-          <span class="chip selected" onclick="selectOne(this,'liquidity')">🔥 High Demand</span>
-          <span class="chip" onclick="selectOne(this,'liquidity')">⚖️ Moderate</span>
-          <span class="chip" onclick="selectOne(this,'liquidity')">🧊 Low Demand</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">🏘️</span> Comparable Sales</div>
-      <p class="info-text" style="margin-bottom:14px">Enter 2–3 recent comparable transactions from dealers</p>
-      <div id="compsList">
-        <div class="comp-entry" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-          <div class="field-row">
-            <div class="field"><label>Address / Area</label><input type="text" class="comp-addr" placeholder="Nearby property"></div>
-            <div class="field"><label>Rate (₹/sq.ft)</label><input type="number" class="comp-rate" placeholder="0"></div>
+        <div class="card-title"><span class="icon">🏘️</span> Comparable Transactions</div>
+        <div id="compsList">
+          <div class="comp-row" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+            <div class="field-row"><div class="field"><label>Address / Area</label><input type="text" class="c-addr" placeholder="Nearby property"></div><div class="field"><label>Rate ₹/sq.ft</label><input type="number" class="c-rate" placeholder="0"></div></div>
+            <div class="field-row"><div class="field"><label>Area (sq.ft)</label><input type="number" class="c-area" placeholder="0"></div><div class="field"><label>Sale Date</label><input type="date" class="c-date"></div></div>
           </div>
-          <div class="field-row">
-            <div class="field"><label>Area (sq.ft)</label><input type="number" class="comp-area" placeholder="0"></div>
-            <div class="field"><label>Sale Date</label><input type="date" class="comp-date"></div>
+          <div class="comp-row" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+            <div class="field-row"><div class="field"><label>Address / Area</label><input type="text" class="c-addr" placeholder="Nearby property"></div><div class="field"><label>Rate ₹/sq.ft</label><input type="number" class="c-rate" placeholder="0"></div></div>
+            <div class="field-row"><div class="field"><label>Area (sq.ft)</label><input type="number" class="c-area" placeholder="0"></div><div class="field"><label>Sale Date</label><input type="date" class="c-date"></div></div>
           </div>
-        </div>
-        <div class="comp-entry" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-          <div class="field-row">
-            <div class="field"><label>Address / Area</label><input type="text" class="comp-addr" placeholder="Nearby property"></div>
-            <div class="field"><label>Rate (₹/sq.ft)</label><input type="number" class="comp-rate" placeholder="0"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>Area (sq.ft)</label><input type="number" class="comp-area" placeholder="0"></div>
-            <div class="field"><label>Sale Date</label><input type="date" class="comp-date"></div>
-          </div>
-        </div>
-        <div class="comp-entry">
-          <div class="field-row">
-            <div class="field"><label>Address / Area</label><input type="text" class="comp-addr" placeholder="Nearby property"></div>
-            <div class="field"><label>Rate (₹/sq.ft)</label><input type="number" class="comp-rate" placeholder="0"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>Area (sq.ft)</label><input type="number" class="comp-area" placeholder="0"></div>
-            <div class="field"><label>Sale Date</label><input type="date" class="comp-date"></div>
+          <div class="comp-row">
+            <div class="field-row"><div class="field"><label>Address / Area</label><input type="text" class="c-addr" placeholder="Nearby property"></div><div class="field"><label>Rate ₹/sq.ft</label><input type="number" class="c-rate" placeholder="0"></div></div>
+            <div class="field-row"><div class="field"><label>Area (sq.ft)</label><input type="number" class="c-area" placeholder="0"></div><div class="field"><label>Sale Date</label><input type="date" class="c-date"></div></div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">💰</span> Value Estimate</div>
-      <div class="field-row">
-        <div class="field">
-          <label>Estimated Rate (₹/sq.ft)</label>
-          <input type="number" id="estRate" placeholder="0" oninput="calcValue()">
+      <div class="card">
+        <div class="card-title"><span class="icon">💰</span> Value Estimate</div>
+        <div class="field-row">
+          <div class="field"><label>Rate ₹/sq.ft</label><input type="number" id="estRate" placeholder="0" oninput="calcVal()"></div>
+          <div class="field"><label>Method</label><select id="valMethod"><option>Market Comparison</option><option>Cost Approach</option><option>Income Approach</option><option>Depreciated Replacement</option></select></div>
         </div>
-        <div class="field">
-          <label>Valuation Method</label>
-          <select id="valMethod" onchange="calcValue()">
-            <option>Market Comparison</option>
-            <option>Cost Approach</option>
-            <option>Income Approach</option>
-            <option>Depreciated Replacement</option>
-          </select>
+        <div id="valResult" style="display:none">
+          <div class="val-box">
+            <div class="v-lbl">Estimated Market Value</div>
+            <div class="v-val" id="valAmount">₹0</div>
+            <div class="v-range" id="valRange">—</div>
+          </div>
         </div>
-      </div>
-      <div id="calcResult" style="display:none; margin-top:10px">
-        <div class="valuation-box">
-          <div class="v-label">Estimated Market Value</div>
-          <div class="v-value" id="calcValue">₹0</div>
-          <div class="v-range" id="calcRange">Range: ₹0 – ₹0</div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Additional Remarks</label>
-        <textarea id="marketRemarks" placeholder="Any special conditions, forced sale discount, renovation premium..."></textarea>
+        <div class="field" style="margin-top:12px"><label>Additional Remarks</label><textarea id="mktRemarks" placeholder="Special conditions, premium, discount..."></textarea></div>
       </div>
     </div>
+
+  </div><!-- /app-content -->
+
+  <div class="nav-bar" id="appNavBar">
+    <button class="btn btn-outline" id="btnBack" style="display:none" onclick="navigate(-1)">← Back</button>
+    <button class="btn btn-primary" id="btnNext" onclick="navigate(1)">Next →</button>
   </div>
-
-  <!-- ═══════════════════════════════════════ SCREEN 5: AI PROCESSING ═══ -->
-  <div class="screen" id="screen-5">
-    <div class="ai-panel card">
-      <div class="ai-orb">🤖</div>
-      <h2>Generating Report</h2>
-      <p>AI is compiling your inspection data into a professional valuation report</p>
-      <div class="ai-steps" id="aiSteps">
-        <div class="ai-step" id="step-a"><span class="s-icon">📋</span> Parsing inspection data <span class="s-check" id="check-a">⟳</span></div>
-        <div class="ai-step" id="step-b"><span class="s-icon">📸</span> Processing site photos <span class="s-check" id="check-b">⟳</span></div>
-        <div class="ai-step" id="step-c"><span class="s-icon">📊</span> Analysing market comparables <span class="s-check" id="check-c">⟳</span></div>
-        <div class="ai-step" id="step-d"><span class="s-icon">💰</span> Computing valuation <span class="s-check" id="check-d">⟳</span></div>
-        <div class="ai-step" id="step-e"><span class="s-icon">📝</span> Drafting report narrative <span class="s-check" id="check-e">⟳</span></div>
-        <div class="ai-step" id="step-f"><span class="s-icon">📄</span> Formatting Word document <span class="s-check" id="check-f">⟳</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════ SCREEN 6: RESULT ═══ -->
-  <div class="screen" id="screen-6">
-    <div class="card result-hero">
-      <div class="check">✅</div>
-      <h2>Report Ready!</h2>
-      <p id="reportSubtitle">Valuation report generated successfully</p>
-    </div>
-
-    <div class="valuation-box" id="finalValBox" style="display:none">
-      <div class="v-label">Final Estimated Value</div>
-      <div class="v-value" id="finalVal">₹0</div>
-      <div class="v-range" id="finalRange">—</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">📄</span> Report Preview</div>
-      <div class="report-preview" id="reportPreview">Loading report...</div>
-    </div>
-
-    <button class="download-btn" onclick="downloadReport()">
-      📥 Download Word Report (.docx)
-    </button>
-    <br><br>
-    <button class="btn btn-outline" onclick="startNew()" style="width:100%;margin-top:8px">
-      + Start New Inspection
-    </button>
-  </div>
-
-</div><!-- /content -->
-
-<!-- Nav Bar -->
-<div class="nav-bar" id="navBar">
-  <button class="btn btn-outline" id="btnBack" onclick="navigate(-1)" style="display:none">← Back</button>
-  <button class="btn btn-primary" id="btnNext" onclick="navigate(1)">Next →</button>
 </div>
 
-<script>
-// ════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════
-let currentScreen = 0;
-const TOTAL_SCREENS = 5; // 0–4 data screens
+<!-- ═══════════════════════ PROCESSING ═══════════════════════ -->
+<div class="page" id="page-processing">
+  <div class="proc-box">
+    <div class="proc-orb">🤖</div>
+    <h2>Generating Report</h2>
+    <p>AI is analysing your inspection data</p>
+    <div id="procSteps">
+      <div class="proc-step" id="ps0"><span class="ps-icon">📋</span>Parsing inspection data<span class="ps-check" id="pc0">⌛</span></div>
+      <div class="proc-step" id="ps1"><span class="ps-icon">📸</span>Processing photographs<span class="ps-check" id="pc1">⌛</span></div>
+      <div class="proc-step" id="ps2"><span class="ps-icon">📊</span>Analysing market data<span class="ps-check" id="pc2">⌛</span></div>
+      <div class="proc-step" id="ps3"><span class="ps-icon">💰</span>Computing valuation<span class="ps-check" id="pc3">⌛</span></div>
+      <div class="proc-step" id="ps4"><span class="ps-icon">📝</span>Drafting report narrative<span class="ps-check" id="pc4">⌛</span></div>
+      <div class="proc-step" id="ps5"><span class="ps-icon">☁️</span>Saving to cloud<span class="ps-check" id="pc5">⌛</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ REPORT ═══════════════════════ -->
+<div class="page" id="page-report">
+  <div class="report-header">
+    <div class="check">✅</div>
+    <h2>Report Ready</h2>
+    <p id="rptSubtitle">Valuation complete</p>
+  </div>
+  <div class="report-content">
+    <div class="report-val-box" id="rptValBox" style="display:none">
+      <div class="rv-lbl">Estimated Market Value</div>
+      <div class="rv-val" id="rptVal">₹0</div>
+      <div class="rv-range" id="rptRange">—</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">📄</span> Report Preview</div>
+      <div class="report-preview" id="reportPreview">Loading...</div>
+    </div>
+    <button class="dl-btn" onclick="downloadReport()">📥 Download Report (.txt)</button>
+    <button class="new-btn" onclick="goToDashboard()">← Back to Dashboard</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════ FIREBASE + APP LOGIC ═══════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// ── Firebase init ──
+const firebaseConfig = {
+  apiKey: "AIzaSyCby71qm1V8JYoaEODZSMRnPGAxJYx4mgo",
+  authDomain: "property-valuation-3d6e6.firebaseapp.com",
+  projectId: "property-valuation-3d6e6",
+  storageBucket: "property-valuation-3d6e6.firebasestorage.app",
+  messagingSenderId: "612132729207",
+  appId: "1:612132729207:web:6e0a27679cae61baed3172"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ── State ──
+let currentUser = null;
+let isSignUp = false;
+let currentInspectionId = null;
 let selectedType = 'Residential';
 let condition = 3;
-let photos = []; // {dataUrl, label}
+let locRating = 3;
+let photos = [];
 let reportText = '';
+let currentScreen = 0;
+const TOTAL = 5;
 
-// ── Auto-fill date & GPS ──
-window.addEventListener('load', () => {
-  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(p => {
-      document.getElementById('gps').value = p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);
-    });
+// ── Expose globals ──
+window.handleAuth = handleAuth;
+window.toggleAuthMode = toggleAuthMode;
+window.signOut = doSignOut;
+window.startNewInspection = startNewInspection;
+window.goToDashboard = goToDashboard;
+window.navigate = navigate;
+window.selectType = selectType;
+window.toggleChip = (el) => el.classList.toggle('selected');
+window.selectOne = selectOne;
+window.setCond = setCond;
+window.setStars = setStars;
+window.handlePhotos = handlePhotos;
+window.calcVal = calcVal;
+window.downloadReport = downloadReport;
+
+// ── Auth state ──
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    showPage('page-dashboard');
+    loadDashboard();
+  } else {
+    currentUser = null;
+    showPage('page-login');
   }
 });
 
-// ════════════════════════════════════════════════
-//  NAVIGATION
-// ════════════════════════════════════════════════
-function navigate(dir) {
-  if (dir === 1 && currentScreen === TOTAL_SCREENS - 1) {
-    startAI(); return;
+// ── AUTH ──
+async function handleAuth() {
+  const email = document.getElementById('userEmail').value.trim();
+  const password = document.getElementById('userPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  document.getElementById('loginBtn').textContent = isSignUp ? 'Creating account...' : 'Signing in...';
+  try {
+    if (isSignUp) {
+      const name = document.getElementById('userName').value.trim();
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = friendlyError(e.code);
+    document.getElementById('loginBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
   }
-  goTo(currentScreen + dir);
 }
 
-function goTo(n) {
-  if (n < 0 || n >= TOTAL_SCREENS) return;
-  document.getElementById('screen-'+currentScreen).classList.remove('active');
-  currentScreen = n;
-  document.getElementById('screen-'+currentScreen).classList.add('active');
+function friendlyError(code) {
+  const map = {
+    'auth/invalid-email': 'Invalid email address.',
+    'auth/user-not-found': 'No account found with this email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/email-already-in-use': 'Email already registered. Please sign in.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/invalid-credential': 'Invalid email or password.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+function toggleAuthMode() {
+  isSignUp = !isSignUp;
+  document.getElementById('loginTitle').textContent = isSignUp ? 'Create your account' : 'Welcome back';
+  document.getElementById('loginBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
+  document.getElementById('toggleText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('toggleLink').textContent = isSignUp ? 'Sign in' : 'Sign up';
+  document.getElementById('nameField').style.display = isSignUp ? 'block' : 'none';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+async function doSignOut() {
+  await fbSignOut(auth);
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const name = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('userChip').textContent = name;
+
+  const q = query(collection(db, 'inspections'), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  const inspections = [];
+  snap.forEach(d => inspections.push({ id: d.id, ...d.data() }));
+
+  const total = inspections.length;
+  const done = inspections.filter(i => i.status === 'complete').length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statDraft').textContent = total - done;
+
+  const list = document.getElementById('inspectionsList');
+  if (!inspections.length) {
+    list.innerHTML = `<div class="empty-state"><span class="e-icon">📋</span><p>No inspections yet.<br>Tap + to start your first one.</p></div>`;
+    return;
+  }
+  list.innerHTML = inspections.map(i => `
+    <div class="insp-card" onclick="viewReport('${i.id}','${(i.reportText||'').replace(/'/g,"\\'")}')">
+      <div class="insp-card-top">
+        <span class="insp-ref">${i.refNo || '—'}</span>
+        <span class="insp-status ${i.status === 'complete' ? 'status-complete' : 'status-draft'}">${i.status === 'complete' ? '✓ Complete' : '✏ Draft'}</span>
+      </div>
+      <div class="insp-addr">${i.address || 'Address not set'}</div>
+      <div class="insp-meta">
+        <span>🏗️ ${i.propertyType || '—'}</span>
+        <span>👤 ${i.valuedBy || '—'}</span>
+        <span>📅 ${i.inspDate || '—'}</span>
+        ${i.estimatedValue ? `<span>💰 ₹${Number(i.estimatedValue).toLocaleString('en-IN')}</span>` : ''}
+      </div>
+    </div>`).join('');
+
+  window.viewReport = (id, report) => {
+    reportText = report;
+    document.getElementById('reportPreview').textContent = report || 'No report generated yet.';
+    document.getElementById('rptSubtitle').textContent = 'Viewing saved inspection';
+    document.getElementById('rptValBox').style.display = 'none';
+    showPage('page-report');
+  };
+}
+
+// ── NEW INSPECTION ──
+function startNewInspection() {
+  resetForm();
+  showPage('page-app');
+  document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('refNo').value = 'VP-' + Date.now().toString().slice(-6);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(p => {
+      document.getElementById('gps').value = p.coords.latitude.toFixed(6) + ', ' + p.coords.longitude.toFixed(6);
+    });
+  }
+}
+
+function resetForm() {
+  currentScreen = 0; selectedType = 'Residential'; condition = 3; locRating = 3; photos = [];
+  document.querySelectorAll('.screen').forEach((s,i) => { s.classList.toggle('active', i===0); });
+  document.querySelectorAll('.type-btn').forEach((b,i) => b.classList.toggle('selected', i===0));
+  document.querySelectorAll('.cond-btn').forEach(b => { b.classList.remove('sel'); if(b.dataset.val==='3') b.classList.add('sel'); });
+  document.querySelectorAll('#locStars .star').forEach((s,i) => s.classList.toggle('lit', i<3));
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('input[type=text], input[type=number], textarea').forEach(el => { if(!el.id.includes('refNo') && !el.id.includes('inspDate')) el.value=''; });
+  document.getElementById('photoGrid').innerHTML = '';
+  document.getElementById('uploadProgress').textContent = '';
+  document.getElementById('valResult').style.display = 'none';
+  ['res-f','com-f','ind-f','land-f'].forEach(id => document.getElementById(id).style.display = id==='res-f' ? 'block' : 'none');
   updateNav();
+}
+
+function goToDashboard() {
+  showPage('page-dashboard');
+  loadDashboard();
+}
+
+// ── NAVIGATION ──
+function navigate(dir) {
+  if (dir === 1 && currentScreen === TOTAL - 1) { startProcessing(); return; }
+  const next = currentScreen + dir;
+  if (next < 0 || next >= TOTAL) return;
+  document.getElementById('sc'+currentScreen).classList.remove('active');
+  currentScreen = next;
+  document.getElementById('sc'+currentScreen).classList.add('active');
+  updateNav();
+  autoSaveDraft();
 }
 
 function updateNav() {
   const labels = document.querySelectorAll('.step-label');
-  labels.forEach((l, i) => {
-    l.classList.remove('active','done');
-    if (i === currentScreen) l.classList.add('active');
-    else if (i < currentScreen) l.classList.add('done');
-  });
-  document.getElementById('progressFill').style.width = ((currentScreen+1)/TOTAL_SCREENS*100)+'%';
+  labels.forEach((l,i) => { l.classList.remove('active','done'); if(i===currentScreen) l.classList.add('active'); else if(i<currentScreen) l.classList.add('done'); });
+  document.getElementById('progressFill').style.width = ((currentScreen+1)/TOTAL*100)+'%';
   document.getElementById('btnBack').style.display = currentScreen > 0 ? 'flex' : 'none';
-  document.getElementById('btnNext').textContent = currentScreen === TOTAL_SCREENS-1 ? '🤖 Generate Report' : 'Next →';
-  document.getElementById('btnNext').className = currentScreen === TOTAL_SCREENS-1 ? 'btn btn-gold' : 'btn btn-primary';
+  const btnNext = document.getElementById('btnNext');
+  if (currentScreen === TOTAL-1) { btnNext.textContent = '🤖 Generate Report'; btnNext.className = 'btn btn-gold'; }
+  else { btnNext.textContent = 'Next →'; btnNext.className = 'btn btn-primary'; }
 }
 
-// ════════════════════════════════════════════════
-//  TYPE SELECTOR
-// ════════════════════════════════════════════════
+// ── FORM HELPERS ──
 function selectType(el, type) {
-  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedType = type;
-  ['res-fields','com-fields','ind-fields','land-fields'].forEach(id=>{
-    document.getElementById(id).style.display='none';
-  });
-  const map = {Residential:'res',Commercial:'com',Industrial:'ind',Land:'land'};
-  document.getElementById(map[type]+'-fields').style.display='block';
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected'); selectedType = type;
+  ['res-f','com-f','ind-f','land-f'].forEach(id => document.getElementById(id).style.display = 'none');
+  const map = {Residential:'res-f',Commercial:'com-f',Industrial:'ind-f',Land:'land-f'};
+  document.getElementById(map[type]).style.display = 'block';
 }
-
-// ════════════════════════════════════════════════
-//  CHIPS & STARS & CONDITION
-// ════════════════════════════════════════════════
-function toggleChip(el) { el.classList.toggle('selected'); }
 function selectOne(el, group) {
-  el.closest('.chip-wrap').querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  el.closest('.chip-wrap').querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
-}
-function setStars(id, val) {
-  document.querySelectorAll('#'+id+' .star').forEach(s=>{
-    s.classList.toggle('lit', +s.dataset.v <= val);
-  });
 }
 function setCond(el) {
-  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');
-  condition = +el.dataset.val;
+  document.querySelectorAll('.cond-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel'); condition = +el.dataset.val;
+}
+function setStars(n) {
+  locRating = n;
+  document.querySelectorAll('#locStars .star').forEach((s,i) => s.classList.toggle('lit', i < n));
 }
 
-// ════════════════════════════════════════════════
-//  PHOTOS
-// ════════════════════════════════════════════════
-function handlePhotos(input) {
+// ── PHOTOS ──
+async function handlePhotos(input) {
   const files = Array.from(input.files);
-  files.forEach(file => {
+  document.getElementById('uploadProgress').textContent = `Uploading ${files.length} photo(s)...`;
+  for (const file of files) {
     const reader = new FileReader();
-    reader.onload = e => {
-      photos.push({dataUrl: e.target.result, label:'', file});
-      renderPhotos();
-    };
-    reader.readAsDataURL(file);
-  });
-  input.value='';
+    await new Promise(res => { reader.onload = e => { photos.push({dataUrl: e.target.result, label: '', file}); res(); }; reader.readAsDataURL(file); });
+  }
+  renderPhotos();
+  document.getElementById('uploadProgress').textContent = `${photos.length} photo(s) ready`;
+  input.value = '';
 }
-
 function renderPhotos() {
   const grid = document.getElementById('photoGrid');
-  grid.innerHTML = '';
-  photos.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.className = 'photo-thumb';
-    div.innerHTML = `
-      <img src="${p.dataUrl}" alt="Photo ${i+1}">
-      <div class="label-input"><input type="text" placeholder="Label..." value="${p.label}" onchange="photos[${i}].label=this.value"></div>
-      <button class="remove-btn" onclick="removePhoto(${i})">×</button>`;
-    grid.appendChild(div);
-  });
+  grid.innerHTML = photos.map((p,i) => `
+    <div class="photo-thumb">
+      <img src="${p.dataUrl}">
+      <div class="pt-label"><input type="text" placeholder="Label..." value="${p.label}" onchange="photos[${i}].label=this.value"></div>
+      <button class="rm-btn" onclick="removePhoto(${i})">×</button>
+    </div>`).join('');
 }
+window.removePhoto = (i) => { photos.splice(i,1); renderPhotos(); };
 
-function removePhoto(i) { photos.splice(i,1); renderPhotos(); }
-
-// ════════════════════════════════════════════════
-//  VALUE CALCULATOR
-// ════════════════════════════════════════════════
-function calcValue() {
+// ── CALC ──
+function calcVal() {
   const rate = +document.getElementById('estRate').value;
-  const area = +document.getElementById('builtArea').value || +document.getElementById('carpetArea').value || 1000;
-  if (!rate) { document.getElementById('calcResult').style.display='none'; return; }
-  const val = rate * area;
-  document.getElementById('calcResult').style.display='block';
-  document.getElementById('calcValue').textContent = '₹'+val.toLocaleString('en-IN');
-  document.getElementById('calcRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
+  const area = +document.getElementById('builtArea')?.value || +document.getElementById('plotArea')?.value || 0;
+  if (!rate) { document.getElementById('valResult').style.display='none'; return; }
+  const val = rate * (area || 1000);
+  document.getElementById('valResult').style.display = 'block';
+  document.getElementById('valAmount').textContent = '₹' + val.toLocaleString('en-IN');
+  document.getElementById('valRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
 }
 
-// ════════════════════════════════════════════════
-//  AI PROCESSING
-// ════════════════════════════════════════════════
-async function startAI() {
-  // Hide nav
-  document.getElementById('navBar').style.display='none';
-  // Switch to processing screen
-  document.getElementById('screen-'+currentScreen).classList.remove('active');
-  document.getElementById('screen-5').classList.add('active');
-  document.getElementById('progressFill').style.width = '100%';
-
-  // Reset steps
-  const steps = ['a','b','c','d','e','f'];
-  steps.forEach(s=>{
-    document.getElementById('step-'+s).classList.remove('done','running');
-    document.getElementById('check-'+s).textContent='⟳';
-  });
-
-  // Animate steps
-  for (let i=0; i<steps.length; i++) {
-    const s = steps[i];
-    document.getElementById('step-'+s).classList.add('running');
-    document.getElementById('check-'+s).textContent='⟳';
-    await delay(i < 4 ? 700 : 1000);
-    document.getElementById('step-'+s).classList.remove('running');
-    document.getElementById('step-'+s).classList.add('done');
-    document.getElementById('check-'+s).textContent='✅';
-  }
-
-  // Build data object
-  const data = collectData();
-  
-  // Call AI
-  await generateReport(data);
-}
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
+// ── COLLECT DATA ──
 function collectData() {
-  const chips = (container) => {
-    const el = document.querySelector(container);
-    if (!el) return [];
-    return Array.from(el.querySelectorAll('.chip.selected')).map(c=>c.textContent);
-  };
-  const comps = Array.from(document.querySelectorAll('.comp-entry')).map(c=>({
-    address: c.querySelector('.comp-addr').value,
-    rate: c.querySelector('.comp-rate').value,
-    area: c.querySelector('.comp-area').value,
-    date: c.querySelector('.comp-date').value
-  })).filter(c=>c.address||c.rate);
-
+  const chips = (wrap) => wrap ? Array.from(wrap.querySelectorAll('.chip.selected')).map(c=>c.textContent) : [];
+  const comps = Array.from(document.querySelectorAll('.comp-row')).map(r => ({
+    address: r.querySelector('.c-addr').value,
+    rate: r.querySelector('.c-rate').value,
+    area: r.querySelector('.c-area').value,
+    date: r.querySelector('.c-date').value
+  })).filter(c => c.address || c.rate);
+  const trend = document.querySelector('#sc4 .chip-wrap .chip.selected')?.textContent || 'Stable';
   const condLabels = {1:'Very Poor',2:'Poor',3:'Average',4:'Good',5:'Excellent'};
-  const locRating = document.querySelectorAll('#locStars .star.lit').length;
+  const rate = +document.getElementById('estRate').value || 0;
+  const area = +document.getElementById('builtArea')?.value || +document.getElementById('plotArea')?.value || 0;
 
   return {
-    ref: document.getElementById('refNo').value || 'VP-'+Date.now(),
-    date: document.getElementById('inspDate').value,
-    valuer: document.getElementById('valueName').value,
+    refNo: document.getElementById('refNo').value,
+    inspDate: document.getElementById('inspDate').value,
+    valuedBy: currentUser.displayName || currentUser.email,
     client: document.getElementById('clientName').value,
     purpose: document.getElementById('valPurpose').value,
     address: [document.getElementById('addr1').value, document.getElementById('locality').value, document.getElementById('city').value, document.getElementById('pincode').value].filter(Boolean).join(', '),
@@ -1204,199 +1015,239 @@ function collectData() {
     roadAccess: document.getElementById('roadAccess').value,
     transport: document.getElementById('transport').value,
     landmarks: document.getElementById('landmarks').value,
-    locationRating: locRating + '/5',
+    locationRating: locRating+'/5',
     observations: document.getElementById('observations').value,
+    amenities: chips(document.getElementById('amenityChips')),
     photoCount: photos.length,
     photoLabels: photos.map(p=>p.label).filter(Boolean),
+    builtArea: document.getElementById('builtArea')?.value || '',
+    plotArea: document.getElementById('plotArea')?.value || '',
+    bhk: document.getElementById('bhk')?.value || '',
+    bedrooms: document.getElementById('bedrooms')?.value || '',
+    bathrooms: document.getElementById('bathrooms')?.value || '',
+    yearBuilt: document.getElementById('yearBuilt')?.value || '',
+    floors: document.getElementById('floors')?.value || '',
     comparables: comps,
-    marketTrend: document.querySelector('#screen-4 .chip-wrap .chip.selected')?.textContent || 'Stable',
-    estimatedRate: document.getElementById('estRate').value,
+    marketTrend: trend,
+    estimatedRate: rate,
+    estimatedValue: rate * (area || 1000),
     valuationMethod: document.getElementById('valMethod').value,
-    marketRemarks: document.getElementById('marketRemarks').value,
-    // Type-specific
-    builtArea: document.getElementById('builtArea')?.value,
-    plotArea: document.getElementById('plotArea')?.value,
-    carpetArea: document.getElementById('carpetArea')?.value,
-    bhk: document.getElementById('bhk')?.value,
-    bedrooms: document.getElementById('bedrooms')?.value,
-    bathrooms: document.getElementById('bathrooms')?.value,
-    yearBuilt: document.getElementById('yearBuilt')?.value,
-    floors: document.getElementById('floors')?.value,
-    amenities: chips('#amenityChips'),
+    marketRemarks: document.getElementById('mktRemarks').value,
   };
 }
 
-async function generateReport(data) {
-  const prompt = `You are a senior certified property valuer. Based on the following inspection data, write a formal, professional property valuation report in structured format. The report should be comprehensive, use formal language, include all sections, and read like an official valuation document.
+// ── AUTO SAVE DRAFT ──
+async function autoSaveDraft() {
+  try {
+    const data = { ...collectData(), status: 'draft', createdAt: serverTimestamp() };
+    if (currentInspectionId) {
+      await updateDoc(doc(db, 'inspections', currentInspectionId), data);
+    } else {
+      const docRef = await addDoc(collection(db, 'inspections'), data);
+      currentInspectionId = docRef.id;
+    }
+    document.getElementById('saveIndicator').textContent = '✓ Saved';
+    setTimeout(() => document.getElementById('saveIndicator').textContent = '', 2000);
+  } catch(e) { console.log('Auto-save error:', e); }
+}
+
+// ── PROCESSING ──
+async function startProcessing() {
+  showPage('page-processing');
+  document.getElementById('appNavBar').style.display = 'none';
+
+  const steps = [0,1,2,3,4,5];
+  for (const i of steps) {
+    document.getElementById('ps'+i).classList.add('running');
+    document.getElementById('pc'+i).innerHTML = '<span class="spin">⟳</span>';
+    await delay(i < 4 ? 600 : 900);
+    document.getElementById('ps'+i).classList.remove('running');
+    document.getElementById('ps'+i).classList.add('done');
+    document.getElementById('pc'+i).textContent = '✅';
+  }
+
+  const data = collectData();
+  await generateAndSave(data);
+}
+
+async function generateAndSave(data) {
+  // Upload photos to Firebase Storage
+  const photoURLs = [];
+  for (let i = 0; i < photos.length; i++) {
+    try {
+      const storageRef = ref(storage, `inspections/${currentInspectionId || Date.now()}/photo_${i}.jpg`);
+      await uploadString(storageRef, photos[i].dataUrl, 'data_url');
+      const url = await getDownloadURL(storageRef);
+      photoURLs.push({ url, label: photos[i].label });
+    } catch(e) { console.log('Photo upload error:', e); }
+  }
+
+  // Generate AI report
+  reportText = await callAI(data);
+
+  // Save to Firestore
+  try {
+    const finalData = {
+      ...data,
+      status: 'complete',
+      reportText,
+      photoURLs,
+      completedAt: serverTimestamp(),
+    };
+    if (currentInspectionId) {
+      await updateDoc(doc(db, 'inspections', currentInspectionId), finalData);
+    } else {
+      const docRef = await addDoc(collection(db, 'inspections'), { ...finalData, createdAt: serverTimestamp() });
+      currentInspectionId = docRef.id;
+    }
+  } catch(e) { console.log('Firestore save error:', e); }
+
+  showReportPage(data);
+}
+
+async function callAI(data) {
+  const prompt = `You are a senior certified property valuer in India. Write a formal, professional property valuation report based on the inspection data below. Use formal language throughout. Include all 9 sections clearly labeled.
 
 INSPECTION DATA:
-Reference: ${data.ref}
-Date: ${data.date}
-Valuer: ${data.valuer}
+Reference No: ${data.refNo}
+Inspection Date: ${data.inspDate}
+Valuer: ${data.valuedBy}
 Client: ${data.client}
 Purpose: ${data.purpose}
 Property Type: ${data.propertyType}
 Address: ${data.address}
 GPS: ${data.gps}
 
-PROPERTY DETAILS:
-${data.builtArea ? `Built-up Area: ${data.builtArea} sq.ft` : ''}
-${data.plotArea ? `Plot Area: ${data.plotArea} sq.ft` : ''}
-${data.carpetArea ? `Carpet Area: ${data.carpetArea} sq.ft` : ''}
-${data.bhk ? `Configuration: ${data.bhk}` : ''}
-${data.bedrooms ? `Bedrooms: ${data.bedrooms}, Bathrooms: ${data.bathrooms}` : ''}
-${data.yearBuilt ? `Year of Construction: ${data.yearBuilt}` : ''}
-${data.floors ? `Number of Floors: ${data.floors}` : ''}
-${data.amenities.length ? `Amenities: ${data.amenities.join(', ')}` : ''}
+PROPERTY:
+Built-up Area: ${data.builtArea} sq.ft | Plot: ${data.plotArea} sq.ft | Carpet: ${data.carpetArea || '—'} sq.ft
+Configuration: ${data.bhk} | Bedrooms: ${data.bedrooms} | Bathrooms: ${data.bathrooms}
+Year Built: ${data.yearBuilt} | Floors: ${data.floors}
+Amenities: ${data.amenities.join(', ') || 'None noted'}
 
-CONDITION ASSESSMENT:
-Overall Condition: ${data.condition}
-Foundation: ${data.foundation}
-Walls: ${data.walls}
-Roof: ${data.roof}
-Flooring: ${data.flooring}
-Electricity: ${data.electricity}
-Water Supply: ${data.water}
-Drainage: ${data.drainage}
-Legal Status: ${data.legalStatus}
-
-LOCATION:
-Road Access: ${data.roadAccess}
-Public Transport: ${data.transport}
-Nearby Landmarks: ${data.landmarks}
+CONDITION (${data.condition}):
+Foundation: ${data.foundation} | Walls: ${data.walls} | Roof: ${data.roof} | Flooring: ${data.flooring}
+Electricity: ${data.electricity} | Water: ${data.water} | Drainage: ${data.drainage}
+Legal: ${data.legalStatus} | Road: ${data.roadAccess} | Transport: ${data.transport}
+Landmarks: ${data.landmarks}
 Location Rating: ${data.locationRating}
+Observations: ${data.observations}
 
-VALUER OBSERVATIONS: ${data.observations}
+PHOTOGRAPHY: ${data.photoCount} site photographs taken.
 
-MARKET SURVEY:
-${data.comparables.map((c,i)=>`Comparable ${i+1}: ${c.address}, Rate: ₹${c.rate}/sq.ft, Area: ${c.area} sq.ft, Date: ${c.date}`).join('\n')}
-Market Trend: ${data.marketTrend}
-Estimated Rate: ₹${data.estimatedRate}/sq.ft
-Valuation Method: ${data.valuationMethod}
-Market Remarks: ${data.marketRemarks}
+MARKET:
+Trend: ${data.marketTrend}
+Comparables: ${data.comparables.map((c,i)=>`(${i+1}) ${c.address} @ ₹${c.rate}/sq.ft, ${c.area} sq.ft`).join(' | ')}
+Adopted Rate: ₹${data.estimatedRate}/sq.ft
+Method: ${data.valuationMethod}
+Remarks: ${data.marketRemarks}
 
-PHOTOGRAPHY: ${data.photoCount} photographs were taken during the inspection.
-
-Write a complete formal valuation report with these sections:
+Write the full report with these sections:
 1. EXECUTIVE SUMMARY
-2. PROPERTY DESCRIPTION
+2. PROPERTY DESCRIPTION  
 3. LOCATION ANALYSIS
 4. STRUCTURAL & CONDITION ASSESSMENT
-5. MARKET ANALYSIS & COMPARABLE TRANSACTIONS
-6. VALUATION METHODOLOGY
-7. ESTIMATED MARKET VALUE
-8. ASSUMPTIONS & LIMITING CONDITIONS
-9. VALUER'S CERTIFICATE
+5. UTILITIES & INFRASTRUCTURE
+6. MARKET ANALYSIS & COMPARABLE TRANSACTIONS
+7. VALUATION METHODOLOGY
+8. ESTIMATED MARKET VALUE (include the final value clearly and a ±8% range)
+9. VALUER'S DECLARATION & CERTIFICATE
 
-Use formal, professional language. Include estimated market value with a range. Sign off with the valuer's name and date.`;
+End with a professional sign-off including valuer name, date, and a note about photographs on file.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
     });
     const json = await res.json();
-    reportText = json.content?.[0]?.text || 'Report generation failed. Please try again.';
+    return json.content?.[0]?.text || fallbackReport(data);
   } catch(e) {
-    reportText = buildFallbackReport(data);
+    return fallbackReport(data);
   }
-
-  showResult(data);
 }
 
-function buildFallbackReport(data) {
-  const rate = +data.estimatedRate || 0;
-  const area = +data.builtArea || +data.plotArea || 1000;
-  const val = rate * area;
+function fallbackReport(data) {
+  const val = data.estimatedValue;
   return `PROPERTY VALUATION REPORT
-${'─'.repeat(50)}
-
-REFERENCE: ${data.ref}
-DATE: ${data.date}
-VALUER: ${data.valuer}
-CLIENT: ${data.client}
-PURPOSE: ${data.purpose}
+${'═'.repeat(48)}
+Reference: ${data.refNo}    Date: ${data.inspDate}
+Valuer: ${data.valuedBy}
+Client: ${data.client} | Purpose: ${data.purpose}
 
 1. EXECUTIVE SUMMARY
-This report presents the market valuation of the ${data.propertyType.toLowerCase()} property located at ${data.address}, inspected on ${data.date}. The property has been assessed using the ${data.valuationMethod} approach.
+This valuation report covers the ${data.propertyType.toLowerCase()} property at ${data.address}, inspected on ${data.inspDate} for ${data.purpose} purposes.
 
 2. PROPERTY DESCRIPTION
-Property Type: ${data.propertyType}
-Address: ${data.address}
-${data.builtArea ? `Built-up Area: ${data.builtArea} sq.ft` : ''}
-${data.bhk ? `Configuration: ${data.bhk}` : ''}
-Overall Condition: ${data.condition}
+Type: ${data.propertyType} | Config: ${data.bhk}
+Built-up: ${data.builtArea} sq.ft | Plot: ${data.plotArea} sq.ft
+Year: ${data.yearBuilt} | Floors: ${data.floors}
+Amenities: ${data.amenities.join(', ') || '—'}
 
 3. LOCATION ANALYSIS
 Road Access: ${data.roadAccess} | Transport: ${data.transport}
 Location Rating: ${data.locationRating}
-Nearby: ${data.landmarks || 'Various amenities in vicinity'}
+Nearby: ${data.landmarks || 'Various amenities'}
 
 4. STRUCTURAL ASSESSMENT
+Condition: ${data.condition}
 Foundation: ${data.foundation} | Walls: ${data.walls}
 Roof: ${data.roof} | Flooring: ${data.flooring}
+
+5. UTILITIES
 Electricity: ${data.electricity} | Water: ${data.water}
+Drainage: ${data.drainage} | Legal: ${data.legalStatus}
 
-5. MARKET ANALYSIS
-Market Trend: ${data.marketTrend}
-${data.comparables.map((c,i)=>`Comparable ${i+1}: ${c.address} @ ₹${c.rate}/sq.ft`).join('\n')}
+6. MARKET ANALYSIS
+Trend: ${data.marketTrend}
+${data.comparables.map((c,i)=>`Comp ${i+1}: ${c.address} @ ₹${c.rate}/sq.ft`).join('\n')}
 
-6. VALUATION
+7. VALUATION METHODOLOGY
 Method: ${data.valuationMethod}
-Estimated Rate: ₹${rate.toLocaleString('en-IN')}/sq.ft
-Estimated Market Value: ₹${val.toLocaleString('en-IN')}
-(Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')})
+Rate Adopted: ₹${data.estimatedRate}/sq.ft
 
-7. VALUER'S CERTIFICATE
-I hereby certify that I have personally inspected the above property and the valuation is provided in good faith.
+8. ESTIMATED MARKET VALUE
+Fair Market Value: ₹${val.toLocaleString('en-IN')}
+Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} to ₹${Math.round(val*1.08).toLocaleString('en-IN')}
 
-Signed: ${data.valuer}
-Date: ${data.date}
-${'─'.repeat(50)}`;
+9. VALUER'S CERTIFICATE
+I certify that I have personally inspected this property. ${data.photoCount} photographs are on record.
+
+Signed: ${data.valuedBy}
+Date: ${data.inspDate}
+${'═'.repeat(48)}`;
 }
 
-function showResult(data) {
-  const rate = +data.estimatedRate || 0;
-  const area = +data.builtArea || +data.plotArea || 1000;
-  const val = rate * area;
-
-  // Final valuation box
-  if (rate > 0) {
-    document.getElementById('finalValBox').style.display='block';
-    document.getElementById('finalVal').textContent = '₹'+val.toLocaleString('en-IN');
-    document.getElementById('finalRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
+function showReportPage(data) {
+  const val = data.estimatedValue;
+  if (val > 0) {
+    document.getElementById('rptValBox').style.display = 'block';
+    document.getElementById('rptVal').textContent = '₹' + val.toLocaleString('en-IN');
+    document.getElementById('rptRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
   }
-
-  document.getElementById('reportSubtitle').textContent = `${data.ref} — ${data.address}`;
+  document.getElementById('rptSubtitle').textContent = `${data.refNo} — ${data.address || 'Address not set'}`;
   document.getElementById('reportPreview').textContent = reportText;
-
-  // Show result
-  document.getElementById('screen-5').classList.remove('active');
-  document.getElementById('screen-6').classList.add('active');
-  document.getElementById('navBar').style.display = 'none';
+  showPage('page-report');
 }
 
-// ════════════════════════════════════════════════
-//  DOWNLOAD (simple text fallback)
-// ════════════════════════════════════════════════
-function downloadReport() {
+window.downloadReport = () => {
   const blob = new Blob([reportText], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Valuation_Report.txt';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `ValuPro_Report_${document.getElementById('refNo').value || 'Report'}.txt`;
   a.click();
-  // Note: Full docx generation requires server-side or npm environment
-  // This demo saves the AI-generated text which can be pasted into Word
-  alert('Report saved as .txt\n\nFor full .docx with photos, connect this to the ValuPro backend. You can paste the report text into Word directly.');
-}
+  showToast('Report downloaded!');
+};
 
-function startNew() {
-  location.reload();
+// ── HELPERS ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'page-app') document.getElementById('appNavBar').style.display = 'flex';
+}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 </script>
 </body>
