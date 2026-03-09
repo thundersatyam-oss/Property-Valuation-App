@@ -717,28 +717,12 @@ body {
 <div class="toast" id="toast"></div>
 
 <!-- ═══════════════════════ FIREBASE + APP LOGIC ═══════════════════════ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+<script>
+// ── Google Sheets + Drive backend (no Firebase) ──
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-tgUUGKuXMIdsGLeOmMRe7KgXSe2qRx4yMmVaqlabnDUMndSKhLThA3KKnsldZiCL/exec";
 
-// ── Firebase init ──
-const firebaseConfig = {
-  apiKey: "AIzaSyCby71qm1V8JYoaEODZSMRnPGAxJYx4mgo",
-  authDomain: "property-valuation-3d6e6.firebaseapp.com",
-  projectId: "property-valuation-3d6e6",
-  storageBucket: "property-valuation-3d6e6.firebasestorage.app",
-  messagingSenderId: "612132729207",
-  appId: "1:612132729207:web:6e0a27679cae61baed3172"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-
-// ── State ──
-let currentUser = null;
+// ── Simple local auth using localStorage ──
+let currentUser = JSON.parse(localStorage.getItem('valuepro_user') || 'null');
 let isSignUp = false;
 let currentInspectionId = null;
 let selectedType = 'Residential';
@@ -748,6 +732,7 @@ let photos = [];
 let reportText = '';
 let currentScreen = 0;
 const TOTAL = 5;
+let inspectionsCache = JSON.parse(localStorage.getItem('valuepro_inspections') || '[]');
 
 // ── Expose globals ──
 window.handleAuth = handleAuth;
@@ -765,50 +750,56 @@ window.handlePhotos = handlePhotos;
 window.calcVal = calcVal;
 window.downloadReport = downloadReport;
 
-// ── Auth state ──
-onAuthStateChanged(auth, user => {
-  if (user) {
-    currentUser = user;
+// ── On load check session ──
+window.addEventListener('load', () => {
+  if (currentUser) {
     showPage('page-dashboard');
     loadDashboard();
   } else {
-    currentUser = null;
     showPage('page-login');
   }
 });
 
-// ── AUTH ──
-async function handleAuth() {
+// ── AUTH (local, no server needed) ──
+function handleAuth() {
   const email = document.getElementById('userEmail').value.trim();
   const password = document.getElementById('userPassword').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
-  document.getElementById('loginBtn').textContent = isSignUp ? 'Creating account...' : 'Signing in...';
-  try {
-    if (isSignUp) {
-      const name = document.getElementById('userName').value.trim();
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(cred.user, { displayName: name });
-    } else {
-      await signInWithEmailAndPassword(auth, email, password);
-    }
-  } catch(e) {
-    errEl.style.display = 'block';
-    errEl.textContent = friendlyError(e.code);
-    document.getElementById('loginBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
-  }
-}
 
-function friendlyError(code) {
-  const map = {
-    'auth/invalid-email': 'Invalid email address.',
-    'auth/user-not-found': 'No account found with this email.',
-    'auth/wrong-password': 'Incorrect password.',
-    'auth/email-already-in-use': 'Email already registered. Please sign in.',
-    'auth/weak-password': 'Password must be at least 6 characters.',
-    'auth/invalid-credential': 'Invalid email or password.',
-  };
-  return map[code] || 'Something went wrong. Please try again.';
+  if (!email || !password) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Please enter email and password.';
+    return;
+  }
+  if (password.length < 6) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Password must be at least 6 characters.';
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem('valuepro_users') || '{}');
+
+  if (isSignUp) {
+    const name = document.getElementById('userName').value.trim();
+    if (!name) { errEl.style.display='block'; errEl.textContent='Please enter your name.'; return; }
+    if (users[email]) { errEl.style.display='block'; errEl.textContent='Email already registered. Please sign in.'; return; }
+    users[email] = { name, password, email };
+    localStorage.setItem('valuepro_users', JSON.stringify(users));
+    currentUser = { name, email };
+  } else {
+    const user = users[email];
+    if (!user || user.password !== password) {
+      errEl.style.display = 'block';
+      errEl.textContent = 'Wrong email or password. Try again.';
+      return;
+    }
+    currentUser = { name: user.name, email };
+  }
+
+  localStorage.setItem('valuepro_user', JSON.stringify(currentUser));
+  showPage('page-dashboard');
+  loadDashboard();
 }
 
 function toggleAuthMode() {
@@ -821,33 +812,32 @@ function toggleAuthMode() {
   document.getElementById('loginError').style.display = 'none';
 }
 
-async function doSignOut() {
-  await fbSignOut(auth);
+function doSignOut() {
+  localStorage.removeItem('valuepro_user');
+  currentUser = null;
+  showPage('page-login');
 }
 
 // ── DASHBOARD ──
-async function loadDashboard() {
-  const name = currentUser.displayName || currentUser.email.split('@')[0];
-  document.getElementById('userChip').textContent = name;
+function loadDashboard() {
+  document.getElementById('userChip').textContent = currentUser.name || currentUser.email;
+  inspectionsCache = JSON.parse(localStorage.getItem('valuepro_inspections') || '[]');
 
-  const q = query(collection(db, 'inspections'), orderBy('createdAt', 'desc'));
-  const snap = await getDocs(q);
-  const inspections = [];
-  snap.forEach(d => inspections.push({ id: d.id, ...d.data() }));
-
-  const total = inspections.length;
-  const done = inspections.filter(i => i.status === 'complete').length;
+  const total = inspectionsCache.length;
+  const done = inspectionsCache.filter(i => i.status === 'complete').length;
   document.getElementById('statTotal').textContent = total;
   document.getElementById('statDone').textContent = done;
   document.getElementById('statDraft').textContent = total - done;
 
   const list = document.getElementById('inspectionsList');
-  if (!inspections.length) {
+  if (!total) {
     list.innerHTML = `<div class="empty-state"><span class="e-icon">📋</span><p>No inspections yet.<br>Tap + to start your first one.</p></div>`;
     return;
   }
-  list.innerHTML = inspections.map(i => `
-    <div class="insp-card" onclick="viewReport('${i.id}','${(i.reportText||'').replace(/'/g,"\\'")}')">
+
+  const sorted = [...inspectionsCache].reverse();
+  list.innerHTML = sorted.map(i => `
+    <div class="insp-card" onclick="viewSavedReport('${i.id}')">
       <div class="insp-card-top">
         <span class="insp-ref">${i.refNo || '—'}</span>
         <span class="insp-status ${i.status === 'complete' ? 'status-complete' : 'status-draft'}">${i.status === 'complete' ? '✓ Complete' : '✏ Draft'}</span>
@@ -858,14 +848,24 @@ async function loadDashboard() {
         <span>👤 ${i.valuedBy || '—'}</span>
         <span>📅 ${i.inspDate || '—'}</span>
         ${i.estimatedValue ? `<span>💰 ₹${Number(i.estimatedValue).toLocaleString('en-IN')}</span>` : ''}
+        ${i.sheetSaved ? '<span>☁️ Saved to Sheets</span>' : '<span style="color:#e67e22">⚠️ Local only</span>'}
       </div>
     </div>`).join('');
 
-  window.viewReport = (id, report) => {
-    reportText = report;
-    document.getElementById('reportPreview').textContent = report || 'No report generated yet.';
-    document.getElementById('rptSubtitle').textContent = 'Viewing saved inspection';
-    document.getElementById('rptValBox').style.display = 'none';
+  window.viewSavedReport = (id) => {
+    const insp = inspectionsCache.find(i => i.id === id);
+    if (!insp) return;
+    reportText = insp.reportText || 'No report generated.';
+    const val = insp.estimatedValue || 0;
+    if (val > 0) {
+      document.getElementById('rptValBox').style.display = 'block';
+      document.getElementById('rptVal').textContent = '₹' + Number(val).toLocaleString('en-IN');
+      document.getElementById('rptRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
+    } else {
+      document.getElementById('rptValBox').style.display = 'none';
+    }
+    document.getElementById('rptSubtitle').textContent = `${insp.refNo} — ${insp.address || ''}`;
+    document.getElementById('reportPreview').textContent = reportText;
     showPage('page-report');
   };
 }
@@ -873,6 +873,7 @@ async function loadDashboard() {
 // ── NEW INSPECTION ──
 function startNewInspection() {
   resetForm();
+  currentInspectionId = 'insp_' + Date.now();
   showPage('page-app');
   document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('refNo').value = 'VP-' + Date.now().toString().slice(-6);
@@ -885,12 +886,12 @@ function startNewInspection() {
 
 function resetForm() {
   currentScreen = 0; selectedType = 'Residential'; condition = 3; locRating = 3; photos = [];
-  document.querySelectorAll('.screen').forEach((s,i) => { s.classList.toggle('active', i===0); });
+  document.querySelectorAll('.screen').forEach((s,i) => s.classList.toggle('active', i===0));
   document.querySelectorAll('.type-btn').forEach((b,i) => b.classList.toggle('selected', i===0));
   document.querySelectorAll('.cond-btn').forEach(b => { b.classList.remove('sel'); if(b.dataset.val==='3') b.classList.add('sel'); });
   document.querySelectorAll('#locStars .star').forEach((s,i) => s.classList.toggle('lit', i<3));
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('input[type=text], input[type=number], textarea').forEach(el => { if(!el.id.includes('refNo') && !el.id.includes('inspDate')) el.value=''; });
+  document.querySelectorAll('input[type=text], input[type=number], textarea').forEach(el => { if(!['refNo','inspDate'].includes(el.id)) el.value=''; });
   document.getElementById('photoGrid').innerHTML = '';
   document.getElementById('uploadProgress').textContent = '';
   document.getElementById('valResult').style.display = 'none';
@@ -949,13 +950,13 @@ function setStars(n) {
 // ── PHOTOS ──
 async function handlePhotos(input) {
   const files = Array.from(input.files);
-  document.getElementById('uploadProgress').textContent = `Uploading ${files.length} photo(s)...`;
+  document.getElementById('uploadProgress').textContent = `Loading ${files.length} photo(s)...`;
   for (const file of files) {
     const reader = new FileReader();
-    await new Promise(res => { reader.onload = e => { photos.push({dataUrl: e.target.result, label: '', file}); res(); }; reader.readAsDataURL(file); });
+    await new Promise(res => { reader.onload = e => { photos.push({dataUrl: e.target.result, label: file.name.split('.')[0], file}); res(); }; reader.readAsDataURL(file); });
   }
   renderPhotos();
-  document.getElementById('uploadProgress').textContent = `${photos.length} photo(s) ready`;
+  document.getElementById('uploadProgress').textContent = `✅ ${photos.length} photo(s) ready — will upload to Drive`;
   input.value = '';
 }
 function renderPhotos() {
@@ -995,12 +996,14 @@ function collectData() {
   const area = +document.getElementById('builtArea')?.value || +document.getElementById('plotArea')?.value || 0;
 
   return {
+    id: currentInspectionId,
     refNo: document.getElementById('refNo').value,
     inspDate: document.getElementById('inspDate').value,
-    valuedBy: currentUser.displayName || currentUser.email,
+    valuedBy: currentUser.name || currentUser.email,
     client: document.getElementById('clientName').value,
     purpose: document.getElementById('valPurpose').value,
     address: [document.getElementById('addr1').value, document.getElementById('locality').value, document.getElementById('city').value, document.getElementById('pincode').value].filter(Boolean).join(', '),
+    city: document.getElementById('city').value,
     gps: document.getElementById('gps').value,
     propertyType: selectedType,
     condition: condLabels[condition] + ` (${condition}/5)`,
@@ -1019,7 +1022,6 @@ function collectData() {
     observations: document.getElementById('observations').value,
     amenities: chips(document.getElementById('amenityChips')),
     photoCount: photos.length,
-    photoLabels: photos.map(p=>p.label).filter(Boolean),
     builtArea: document.getElementById('builtArea')?.value || '',
     plotArea: document.getElementById('plotArea')?.value || '',
     bhk: document.getElementById('bhk')?.value || '',
@@ -1036,19 +1038,17 @@ function collectData() {
   };
 }
 
-// ── AUTO SAVE DRAFT ──
-async function autoSaveDraft() {
+// ── AUTO SAVE DRAFT (local) ──
+function autoSaveDraft() {
   try {
-    const data = { ...collectData(), status: 'draft', createdAt: serverTimestamp() };
-    if (currentInspectionId) {
-      await updateDoc(doc(db, 'inspections', currentInspectionId), data);
-    } else {
-      const docRef = await addDoc(collection(db, 'inspections'), data);
-      currentInspectionId = docRef.id;
-    }
-    document.getElementById('saveIndicator').textContent = '✓ Saved';
+    const data = { ...collectData(), status: 'draft' };
+    const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
+    if (idx >= 0) inspectionsCache[idx] = data;
+    else inspectionsCache.push(data);
+    localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
+    document.getElementById('saveIndicator').textContent = '✓ Draft saved';
     setTimeout(() => document.getElementById('saveIndicator').textContent = '', 2000);
-  } catch(e) { console.log('Auto-save error:', e); }
+  } catch(e) { console.log('Draft save error:', e); }
 }
 
 // ── PROCESSING ──
@@ -1056,11 +1056,19 @@ async function startProcessing() {
   showPage('page-processing');
   document.getElementById('appNavBar').style.display = 'none';
 
-  const steps = [0,1,2,3,4,5];
-  for (const i of steps) {
+  const stepLabels = [
+    'Parsing inspection data',
+    'Uploading photos to Drive',
+    'Analysing market data',
+    'Computing valuation',
+    'Drafting report narrative',
+    'Saving to Google Sheets'
+  ];
+
+  for (let i = 0; i < 6; i++) {
     document.getElementById('ps'+i).classList.add('running');
     document.getElementById('pc'+i).innerHTML = '<span class="spin">⟳</span>';
-    await delay(i < 4 ? 600 : 900);
+    await delay(i === 1 ? Math.max(500, photos.length * 400) : i < 4 ? 600 : 900);
     document.getElementById('ps'+i).classList.remove('running');
     document.getElementById('ps'+i).classList.add('done');
     document.getElementById('pc'+i).textContent = '✅';
@@ -1070,37 +1078,63 @@ async function startProcessing() {
   await generateAndSave(data);
 }
 
-async function generateAndSave(data) {
-  // Upload photos to Firebase Storage
-  const photoURLs = [];
+// ── UPLOAD PHOTOS TO DRIVE ──
+async function uploadPhotosToDrive(refNo) {
+  const urls = [];
   for (let i = 0; i < photos.length; i++) {
     try {
-      const storageRef = ref(storage, `inspections/${currentInspectionId || Date.now()}/photo_${i}.jpg`);
-      await uploadString(storageRef, photos[i].dataUrl, 'data_url');
-      const url = await getDownloadURL(storageRef);
-      photoURLs.push({ url, label: photos[i].label });
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'photo',
+          refNo,
+          imageData: photos[i].dataUrl,
+          label: (photos[i].label || ('photo_' + i)) + '.jpg',
+          index: i
+        })
+      });
+      const json = await res.json();
+      if (json.url) urls.push({ url: json.url, label: photos[i].label });
     } catch(e) { console.log('Photo upload error:', e); }
   }
+  return urls;
+}
 
-  // Generate AI report
+// ── SAVE TO GOOGLE SHEETS ──
+async function saveToSheets(data, reportText) {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ type: 'inspection', ...data, reportText })
+    });
+    const json = await res.json();
+    return json.success === true;
+  } catch(e) {
+    console.log('Sheets save error:', e);
+    return false;
+  }
+}
+
+// ── GENERATE & SAVE ──
+async function generateAndSave(data) {
+  // 1. Upload photos to Drive
+  const photoURLs = photos.length > 0 ? await uploadPhotosToDrive(data.refNo) : [];
+
+  // 2. Generate AI report
   reportText = await callAI(data);
 
-  // Save to Firestore
-  try {
-    const finalData = {
-      ...data,
-      status: 'complete',
-      reportText,
-      photoURLs,
-      completedAt: serverTimestamp(),
-    };
-    if (currentInspectionId) {
-      await updateDoc(doc(db, 'inspections', currentInspectionId), finalData);
-    } else {
-      const docRef = await addDoc(collection(db, 'inspections'), { ...finalData, createdAt: serverTimestamp() });
-      currentInspectionId = docRef.id;
-    }
-  } catch(e) { console.log('Firestore save error:', e); }
+  // 3. Save to Google Sheets
+  const sheetSaved = await saveToSheets({ ...data, photoURLs }, reportText);
+
+  // 4. Save locally too as backup
+  const finalData = { ...data, status: 'complete', reportText, photoURLs, sheetSaved };
+  const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
+  if (idx >= 0) inspectionsCache[idx] = finalData;
+  else inspectionsCache.push(finalData);
+  localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
+
+  if (sheetSaved) showToast('✅ Saved to Google Sheets + Drive!');
+  else showToast('⚠️ Saved locally — check internet');
 
   showReportPage(data);
 }
@@ -1119,7 +1153,7 @@ Address: ${data.address}
 GPS: ${data.gps}
 
 PROPERTY:
-Built-up Area: ${data.builtArea} sq.ft | Plot: ${data.plotArea} sq.ft | Carpet: ${data.carpetArea || '—'} sq.ft
+Built-up Area: ${data.builtArea} sq.ft | Plot: ${data.plotArea} sq.ft
 Configuration: ${data.bhk} | Bedrooms: ${data.bedrooms} | Bathrooms: ${data.bathrooms}
 Year Built: ${data.yearBuilt} | Floors: ${data.floors}
 Amenities: ${data.amenities.join(', ') || 'None noted'}
@@ -1128,11 +1162,10 @@ CONDITION (${data.condition}):
 Foundation: ${data.foundation} | Walls: ${data.walls} | Roof: ${data.roof} | Flooring: ${data.flooring}
 Electricity: ${data.electricity} | Water: ${data.water} | Drainage: ${data.drainage}
 Legal: ${data.legalStatus} | Road: ${data.roadAccess} | Transport: ${data.transport}
-Landmarks: ${data.landmarks}
-Location Rating: ${data.locationRating}
+Landmarks: ${data.landmarks} | Location Rating: ${data.locationRating}
 Observations: ${data.observations}
 
-PHOTOGRAPHY: ${data.photoCount} site photographs taken.
+PHOTOGRAPHY: ${data.photoCount} site photographs taken and uploaded to Drive.
 
 MARKET:
 Trend: ${data.marketTrend}
@@ -1143,7 +1176,7 @@ Remarks: ${data.marketRemarks}
 
 Write the full report with these sections:
 1. EXECUTIVE SUMMARY
-2. PROPERTY DESCRIPTION  
+2. PROPERTY DESCRIPTION
 3. LOCATION ANALYSIS
 4. STRUCTURAL & CONDITION ASSESSMENT
 5. UTILITIES & INFRASTRUCTURE
@@ -1152,7 +1185,7 @@ Write the full report with these sections:
 8. ESTIMATED MARKET VALUE (include the final value clearly and a ±8% range)
 9. VALUER'S DECLARATION & CERTIFICATE
 
-End with a professional sign-off including valuer name, date, and a note about photographs on file.`;
+End with a professional sign-off including valuer name, date, and a note that photographs are stored in Google Drive.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1162,15 +1195,13 @@ End with a professional sign-off including valuer name, date, and a note about p
     });
     const json = await res.json();
     return json.content?.[0]?.text || fallbackReport(data);
-  } catch(e) {
-    return fallbackReport(data);
-  }
+  } catch(e) { return fallbackReport(data); }
 }
 
 function fallbackReport(data) {
   const val = data.estimatedValue;
   return `PROPERTY VALUATION REPORT
-${'═'.repeat(48)}
+${'═'.repeat(50)}
 Reference: ${data.refNo}    Date: ${data.inspDate}
 Valuer: ${data.valuedBy}
 Client: ${data.client} | Purpose: ${data.purpose}
@@ -1211,11 +1242,12 @@ Fair Market Value: ₹${val.toLocaleString('en-IN')}
 Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} to ₹${Math.round(val*1.08).toLocaleString('en-IN')}
 
 9. VALUER'S CERTIFICATE
-I certify that I have personally inspected this property. ${data.photoCount} photographs are on record.
+I certify that I have personally inspected this property.
+${data.photoCount} photographs are stored in Google Drive.
 
 Signed: ${data.valuedBy}
 Date: ${data.inspDate}
-${'═'.repeat(48)}`;
+${'═'.repeat(50)}`;
 }
 
 function showReportPage(data) {
@@ -1230,13 +1262,14 @@ function showReportPage(data) {
   showPage('page-report');
 }
 
-window.downloadReport = () => {
+function downloadReport() {
   const blob = new Blob([reportText], {type:'text/plain'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
   a.download = `ValuPro_Report_${document.getElementById('refNo').value || 'Report'}.txt`;
   a.click();
   showToast('Report downloaded!');
-};
+}
 
 // ── HELPERS ──
 function showPage(id) {
@@ -1246,8 +1279,9 @@ function showPage(id) {
 }
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 function showToast(msg) {
-  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
