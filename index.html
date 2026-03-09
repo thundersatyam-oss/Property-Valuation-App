@@ -1376,7 +1376,7 @@ function closeAssignModal(e) {
     document.getElementById('assignModal').classList.remove('active');
 }
 
-function saveTask() {
+async function saveTask() {
   const title = document.getElementById('taskTitle').value.trim();
   if (!title) { showToast('Please enter a task title'); return; }
 
@@ -1395,26 +1395,29 @@ function saveTask() {
     createdAt:  new Date().toISOString()
   };
 
+  // 1. Save locally first — always works
   tasksCache.push(task);
   localStorage.setItem(tasksKey(), JSON.stringify(tasksCache));
 
-  // Save task to Google Sheets — await it and show result
+  // 2. Close modal + clear form
   document.getElementById('assignModal').classList.remove('active');
-  showToast(`⏳ Saving ${task.id} to Sheets...`);
-
-  try {
-    await postToScript({ type: 'task', ...task });
-    showToast(`✅ ${task.id} assigned to ${task.assignee} & saved to Sheets`);
-  } catch(e) {
-    showToast(`⚠️ ${task.id} saved locally only`);
-  }
-
   document.getElementById('taskTitle').value    = '';
   document.getElementById('taskDesc').value     = '';
   document.getElementById('taskProperty').value = '';
 
+  // 3. Refresh UI immediately
   loadDashboard();
   renderTasksList('all');
+
+  // 4. POST to Google Sheet
+  showToast(`⏳ Syncing ${task.id} to Sheets...`);
+  try {
+    await postToScript({ type: 'task', ...task });
+    showToast(`✅ ${task.id} → assigned to ${task.assignee}, saved to Sheets`);
+  } catch(err) {
+    console.error('Task sheet sync failed:', err);
+    showToast(`⚠️ ${task.id} saved locally — sheet sync failed`);
+  }
 }
 
 function renderTasksList(filter) {
