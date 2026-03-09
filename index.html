@@ -1078,63 +1078,63 @@ async function startProcessing() {
   await generateAndSave(data);
 }
 
-// ── UPLOAD PHOTOS TO DRIVE ──
-async function uploadPhotosToDrive(refNo) {
-  const urls = [];
-  for (let i = 0; i < photos.length; i++) {
-    try {
-      const res = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          type: 'photo',
-          refNo,
-          imageData: photos[i].dataUrl,
-          label: (photos[i].label || ('photo_' + i)) + '.jpg',
-          index: i
-        })
-      });
-      const json = await res.json();
-      if (json.url) urls.push({ url: json.url, label: photos[i].label });
-    } catch(e) { console.log('Photo upload error:', e); }
-  }
-  return urls;
-}
-
-// ── SAVE TO GOOGLE SHEETS ──
-async function saveToSheets(data, reportText) {
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ type: 'inspection', ...data, reportText })
-    });
-    const json = await res.json();
-    return json.success === true;
-  } catch(e) {
-    console.log('Sheets save error:', e);
-    return false;
-  }
-}
-
 // ── GENERATE & SAVE ──
 async function generateAndSave(data) {
-  // 1. Upload photos to Drive
-  const photoURLs = photos.length > 0 ? await uploadPhotosToDrive(data.refNo) : [];
-
-  // 2. Generate AI report
+  // 1. Generate AI report first
   reportText = await callAI(data);
 
-  // 3. Save to Google Sheets
-  const sheetSaved = await saveToSheets({ ...data, photoURLs }, reportText);
+  // 2. Bundle ALL photos into the single inspection request
+  // This avoids CORS issues — one request does everything
+  const photoPayload = photos.map((p, i) => ({
+    dataUrl: p.dataUrl,
+    label: (p.label && p.label.trim()) ? p.label.trim() : ('photo_' + (i + 1)),
+    index: i
+  }));
 
-  // 4. Save locally too as backup
-  const finalData = { ...data, status: 'complete', reportText, photoURLs, sheetSaved };
+  // 3. Send everything to Apps Script in ONE request
+  let sheetSaved = false;
+  let folderLink = '';
+  try {
+    const payload = {
+      type: 'inspection',
+      ...data,
+      reportText,
+      photos: photoPayload  // ← photos bundled here
+    };
+
+    // Use no-cors mode via form trick to avoid CORS block
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // text/plain avoids CORS preflight
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+    sheetSaved = json.success === true;
+    folderLink = json.folderLink || '';
+  } catch(e) {
+    console.log('Save error:', e);
+  }
+
+  // 4. Save locally as backup regardless
+  const finalData = {
+    ...data,
+    status: 'complete',
+    reportText,
+    folderLink,
+    sheetSaved,
+    photoCount: photos.length
+  };
   const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
   if (idx >= 0) inspectionsCache[idx] = finalData;
   else inspectionsCache.push(finalData);
   localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
 
-  if (sheetSaved) showToast('✅ Saved to Google Sheets + Drive!');
-  else showToast('⚠️ Saved locally — check internet');
+  if (sheetSaved) {
+    showToast('✅ Saved to Google Sheets + Drive!');
+  } else {
+    showToast('⚠️ Saved locally — check internet & redeploy script');
+  }
 
   showReportPage(data);
 }
