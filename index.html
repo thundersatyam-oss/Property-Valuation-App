@@ -462,6 +462,7 @@ body {
       <span class="role-badge" id="roleBadge">SUB</span>
       <span class="user-chip" id="userChip">...</span>
       <button class="icon-btn" id="taskNavBtn" onclick="showPage('page-tasks')" title="Tasks" style="display:none">📋</button>
+      <button class="icon-btn" id="debugBtn" onclick="showPage('page-debug')" title="Debug" style="display:none">🔧</button>
       <button class="icon-btn" onclick="signOut()" title="Sign out">⏻</button>
     </div>
   </div>
@@ -901,6 +902,34 @@ body {
 </div>
 
 <!-- ═══════════════════════ REPORT ═══════════════════════ -->
+<!-- ═══════════════════════ DEBUG PAGE ═══════════════════════ -->
+<div class="page" id="page-debug">
+  <div class="top-bar">
+    <button class="icon-btn" onclick="showPage('page-dashboard');loadDashboard()" style="font-size:18px">←</button>
+    <span class="top-bar-logo" style="font-size:18px">🔧 <span>Debug</span></span>
+    <div></div>
+  </div>
+  <div class="dash-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">📡</span> Apps Script Connection</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;word-break:break-all" id="dbScriptUrl"></div>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="debugTestGet()">1. Test GET (ping script)</button>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="debugTestPost()">2. Test POST (send dummy row)</button>
+      <button class="btn btn-gold" style="width:100%;margin-bottom:10px" onclick="debugRetryFailed()">3. Retry All Unsynced Inspections</button>
+      <div id="debugLog" style="margin-top:14px;background:#f4f4f4;border-radius:10px;padding:14px;font-size:12px;font-family:monospace;line-height:1.8;min-height:80px;white-space:pre-wrap;word-break:break-all">Tap a button above to start...</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">💾</span> Local Storage Status</div>
+      <div id="debugStorage" style="font-size:13px;line-height:2"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🗑️</span> Danger Zone</div>
+      <button class="btn btn-outline" style="width:100%;margin-bottom:8px;border-color:#e74c3c;color:#e74c3c" onclick="debugClearInspections()">Clear All Local Inspections</button>
+      <button class="btn btn-outline" style="width:100%;border-color:#e74c3c;color:#e74c3c" onclick="debugClearAll()">Reset Everything (full wipe)</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1041,6 +1070,7 @@ function loadDashboard() {
   document.getElementById('taskNavBtn').style.display = 'flex';
   document.getElementById('newTaskBtn').style.display = isMaster ? 'flex' : 'none';
   document.getElementById('assignBtn').style.display  = isMaster ? 'block' : 'none';
+  document.getElementById('debugBtn').style.display   = isMaster ? 'flex' : 'none';
   document.getElementById('masterAnalytics').style.display = isMaster ? 'block' : 'none';
   document.getElementById('subStats').style.display        = isMaster ? 'none' : 'block';
 
@@ -1438,13 +1468,6 @@ function filterTasks(filter, el) {
   renderTasksList(filter);
 }
 
-// Also render tasks when page-tasks becomes active
-const origShowPage = window.showPage;
-window.showPage = function(id) {
-  showPage(id);
-  if (id === 'page-tasks') renderTasksList('all');
-};
-
 // ════════════════════════════════════════════════
 //  INSPECTION FLOW
 // ════════════════════════════════════════════════
@@ -1773,7 +1796,152 @@ function showPage(id) {
   document.getElementById(id).classList.add('active');
   if (id==='page-app') document.getElementById('appNavBar').style.display='flex';
   else document.getElementById('appNavBar').style.display='none';
+  // Side effects
+  if (id === 'page-tasks') renderTasksList('all');
+  if (id === 'page-debug') initDebugPage();
 }
+// ════════════════════════════════════════════════
+//  DEBUG TOOLS
+// ════════════════════════════════════════════════
+function initDebugPage() {
+  document.getElementById('dbScriptUrl').textContent = 'URL: ' + APPS_SCRIPT_URL;
+
+  // Storage stats
+  const insps  = JSON.parse(localStorage.getItem(inspsKey()) || '[]');
+  const tasks  = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
+  const users  = JSON.parse(localStorage.getItem(usersKey()) || '{}');
+  const unsynced = insps.filter(i => !i.sheetSaved);
+
+  document.getElementById('debugStorage').innerHTML = `
+    👥 Users registered: <strong>${Object.keys(users).length}</strong><br>
+    🏠 Inspections (local): <strong>${insps.length}</strong><br>
+    ✅ Synced to Sheets: <strong>${insps.filter(i=>i.sheetSaved).length}</strong><br>
+    ⚠️ NOT synced: <strong style="color:#e74c3c">${unsynced.length}</strong><br>
+    📋 Tasks (local): <strong>${tasks.length}</strong><br>
+    🆔 Last Insp counter: <strong>${localStorage.getItem('vp_insp_counter')||'0'}</strong><br>
+    🆔 Last Task counter: <strong>${localStorage.getItem('vp_task_counter')||'0'}</strong>
+  `;
+}
+
+async function debugTestGet() {
+  const log = document.getElementById('debugLog');
+  log.textContent = '⏳ Sending GET request...\n';
+  try {
+    const start = Date.now();
+    const res   = await fetch(APPS_SCRIPT_URL + '?test=1');
+    const ms    = Date.now() - start;
+    const text  = await res.text();
+    log.textContent = `✅ GET succeeded in ${ms}ms\nHTTP: ${res.status}\nResponse: ${text.substring(0,300)}`;
+  } catch(e) {
+    log.textContent = `❌ GET failed\nError: ${e.message}\n\nThis means the browser cannot reach the Apps Script URL.\n\nCheck:\n1. Are you connected to internet?\n2. Is the script deployed as "Anyone" access?\n3. Try opening the URL in your browser directly.`;
+  }
+}
+
+async function debugTestPost() {
+  const log = document.getElementById('debugLog');
+  log.textContent = '⏳ Sending test POST to Apps Script...\n';
+
+  const testPayload = {
+    type: 'inspection',
+    refNo: 'DEBUG-TEST',
+    inspDate: new Date().toISOString().split('T')[0],
+    valuedBy: currentUser?.name || 'Debug User',
+    client: 'Debug Client',
+    purpose: 'Test',
+    address: 'Debug Address, Ghaziabad',
+    city: 'Ghaziabad',
+    propertyType: 'Residential',
+    gps: '28.6692,77.4538',
+    builtArea: '1000', plotArea: '1200',
+    bhk: '2 BHK', bedrooms: '2', bathrooms: '2',
+    yearBuilt: '2015', floors: '3',
+    amenities: ['Parking','Lift'],
+    condition: 'Good (4/5)', foundation: 'RCC', walls: 'Brick',
+    roof: 'RCC Slab', flooring: 'Vitrified Tiles',
+    electricity: 'Govt Supply', water: 'Municipal',
+    drainage: 'Connected', legalStatus: 'Clear',
+    roadAccess: 'Good', transport: 'Auto/Bus',
+    landmarks: 'School 500m', locationRating: '4/5',
+    observations: 'Debug test inspection',
+    marketTrend: 'Rising', estimatedRate: '5000',
+    estimatedValue: '5000000', valuationMethod: 'Market Comparison',
+    marketRemarks: 'Test entry', photoCount: 0,
+    reportText: '🔧 DEBUG TEST REPORT — If you see this row in your sheet, the connection is working correctly!'
+  };
+
+  try {
+    const start = Date.now();
+    const result = await postToScript(testPayload);
+    const ms = Date.now() - start;
+
+    if (result.corsBlocked) {
+      log.textContent = `⚠️ POST sent (${ms}ms) but response was CORS-blocked.\n\nThis is NORMAL for Apps Script.\nThe request likely reached Google — check your sheet for a "DEBUG-TEST" row.\n\nIf the row appears → connection works ✅\nIf no row → script deployment issue ❌`;
+    } else if (result.success) {
+      log.textContent = `✅ POST succeeded in ${ms}ms!\nFolder: ${result.folderLink||'N/A'}\n\nCheck your Google Sheet for a "DEBUG-TEST" row.`;
+    } else {
+      log.textContent = `❌ POST failed\nError: ${result.error||'Unknown'}\n\nScript received the request but returned an error.\nCheck Apps Script → Executions for details.`;
+    }
+  } catch(e) {
+    log.textContent = `❌ POST exception\n${e.message}`;
+  }
+}
+
+async function debugRetryFailed() {
+  const log = document.getElementById('debugLog');
+  const unsynced = inspectionsCache.filter(i => i.status === 'complete' && !i.sheetSaved);
+
+  if (!unsynced.length) {
+    log.textContent = '✅ All inspections are already synced to Sheets!';
+    return;
+  }
+
+  log.textContent = `Found ${unsynced.length} unsynced inspection(s). Retrying...\n`;
+
+  let successCount = 0;
+  for (const insp of unsynced) {
+    log.textContent += `\n⏳ Syncing ${insp.refNo}...`;
+    try {
+      const result = await postToScript({
+        type: 'inspection', ...insp
+      });
+      if (result.success || result.corsBlocked) {
+        const idx = inspectionsCache.findIndex(i => i.id === insp.id);
+        if (idx >= 0) {
+          inspectionsCache[idx].sheetSaved  = true;
+          inspectionsCache[idx].folderLink  = result.folderLink || '';
+        }
+        successCount++;
+        log.textContent += ` ✅`;
+      } else {
+        log.textContent += ` ❌ ${result.error||''}`;
+      }
+    } catch(e) {
+      log.textContent += ` ❌ ${e.message}`;
+    }
+  }
+
+  localStorage.setItem(inspsKey(), JSON.stringify(inspectionsCache));
+  log.textContent += `\n\nDone! ${successCount}/${unsynced.length} synced.\nCheck your Sheet for new rows.`;
+  initDebugPage();
+}
+
+function debugClearInspections() {
+  if (!confirm('Delete all local inspections? This cannot be undone.')) return;
+  localStorage.removeItem(inspsKey());
+  localStorage.removeItem('vp_insp_counter');
+  inspectionsCache = [];
+  initDebugPage();
+  showToast('Local inspections cleared');
+}
+
+function debugClearAll() {
+  if (!confirm('FULL RESET — delete all local data including users? Cannot be undone.')) return;
+  ['vp_user','vp_users','vp_inspections','vp_tasks','vp_insp_counter','vp_task_counter'].forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+
+// Hook debug page init — already handled inside showPage above
+
 function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function showToast(msg){
   const t=document.getElementById('toast');
