@@ -1398,15 +1398,21 @@ function saveTask() {
   tasksCache.push(task);
   localStorage.setItem(tasksKey(), JSON.stringify(tasksCache));
 
-  // Save task to Google Sheets so all team devices see it
-  postToScript({ type: 'task', ...task }).catch(e => console.log('Task sync error:', e));
+  // Save task to Google Sheets — await it and show result
+  document.getElementById('assignModal').classList.remove('active');
+  showToast(`⏳ Saving ${task.id} to Sheets...`);
+
+  try {
+    await postToScript({ type: 'task', ...task });
+    showToast(`✅ ${task.id} assigned to ${task.assignee} & saved to Sheets`);
+  } catch(e) {
+    showToast(`⚠️ ${task.id} saved locally only`);
+  }
 
   document.getElementById('taskTitle').value    = '';
   document.getElementById('taskDesc').value     = '';
   document.getElementById('taskProperty').value = '';
-  document.getElementById('assignModal').classList.remove('active');
 
-  showToast(`✅ ${task.id} assigned to ${task.assignee}`);
   loadDashboard();
   renderTasksList('all');
 }
@@ -1455,12 +1461,29 @@ function renderTasksList(filter) {
   }).join('');
 }
 
-window.updateTaskStatus = (id, status) => {
+window.updateTaskStatus = async (id, status) => {
   const idx = tasksCache.findIndex(t => t.id === id);
-  if (idx >= 0) { tasksCache[idx].status = status; localStorage.setItem(tasksKey(), JSON.stringify(tasksCache)); }
-  showToast(status === 'Done' ? '✅ Task marked done!' : '▶ Task started!');
+  if (idx < 0) return;
+
+  tasksCache[idx].status     = status;
+  tasksCache[idx].updatedAt  = new Date().toISOString();
+  localStorage.setItem(tasksKey(), JSON.stringify(tasksCache));
+
   renderTasksList('all');
   loadDashboard();
+
+  // Sync status update to Google Sheet
+  try {
+    await postToScript({
+      type:      'update_task_status',
+      id:        tasksCache[idx].id,
+      status:    status,
+      updatedAt: tasksCache[idx].updatedAt
+    });
+    showToast(status === 'Done' ? '✅ Task done — Sheet updated!' : '▶ Task started — Sheet updated!');
+  } catch(e) {
+    showToast(status === 'Done' ? '✅ Task done (local only)' : '▶ Task started');
+  }
 };
 
 window.deleteTask = (id) => {
@@ -1819,7 +1842,44 @@ Sign off with valuer name and date.`;
 
 function fallbackReport(data) {
   const val = data.estimatedValue||0;
-  return `PROPERTY VALUATION REPORT\n${'═'.repeat(48)}\nReference: ${data.refNo}    Date: ${data.inspDate}\nValuer: ${data.valuedBy} | Client: ${data.client}\n\n1. EXECUTIVE SUMMARY\nThis report covers the ${data.propertyType} property at ${data.address}.\n\n2. PROPERTY DESCRIPTION\nConfig: ${data.bhk} | Built-up: ${data.builtArea} sqft | Year: ${data.yearBuilt}\n\n3. LOCATION ANALYSIS\nRoad: ${data.roadAccess} | Transport: ${data.transport} | Rating: ${data.locationRating}\n\n4. STRUCTURAL ASSESSMENT\nCondition: ${data.condition} | Foundation: ${data.foundation} | Walls: ${data.walls}\n\n5. UTILITIES\nElectricity: ${data.electricity} | Water: ${data.water} | Legal: ${data.legalStatus}\n\n6. MARKET ANALYSIS\nTrend: ${data.marketTrend}\n${(data.comparables||[]).map((c,i)=>`Comp ${i+1}: ${c.address} @₹${c.rate}/sqft`).join('\n')}\n\n7. VALUATION METHODOLOGY\nMethod: ${data.valuationMethod} | Rate: ₹${data.estimatedRate}/sqft\n\n8. ESTIMATED MARKET VALUE\nFair Market Value: ₹${val.toLocaleString('en-IN')}\nRange: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}\n\n9. VALUER'S CERTIFICATE\nI certify I have personally inspected this property.\n\nSigned: ${data.valuedBy}    Date: ${data.inspDate}\n${'═'.repeat(48)}`;
+  return `Reference: ${data.refNo}    Date: ${data.inspDate}
+Valuer: ${data.valuedBy} | Client: ${data.client}
+
+1. EXECUTIVE SUMMARY
+This report covers the ${data.propertyType} property at ${data.address}, inspected on ${data.inspDate} for ${data.purpose} purposes.
+
+2. PROPERTY DESCRIPTION
+Config: ${data.bhk} | Built-up: ${data.builtArea} sqft | Plot: ${data.plotArea} sqft | Year: ${data.yearBuilt} | Floors: ${data.floors}
+Amenities: ${(data.amenities||[]).join(', ')||'—'}
+
+3. LOCATION ANALYSIS
+Road: ${data.roadAccess} | Transport: ${data.transport} | Rating: ${data.locationRating}
+Nearby: ${data.landmarks||'—'}
+
+4. STRUCTURAL ASSESSMENT
+Condition: ${data.condition} | Foundation: ${data.foundation} | Walls: ${data.walls}
+Roof: ${data.roof} | Flooring: ${data.flooring}
+
+5. UTILITIES
+Electricity: ${data.electricity} | Water: ${data.water} | Drainage: ${data.drainage} | Legal: ${data.legalStatus}
+
+6. MARKET ANALYSIS
+Trend: ${data.marketTrend}
+${(data.comparables||[]).map((c,i)=>`Comp ${i+1}: ${c.address} @ ₹${c.rate}/sqft`).join('\n')||'No comparables entered'}
+
+7. VALUATION METHODOLOGY
+Method: ${data.valuationMethod} | Adopted Rate: ₹${data.estimatedRate}/sqft
+
+8. ESTIMATED MARKET VALUE
+Fair Market Value: ₹${val.toLocaleString('en-IN')}
+Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}
+
+9. VALUER'S CERTIFICATE
+I certify that I have personally inspected this property on ${data.inspDate}.
+${data.photoCount||0} site photographs are on record.
+
+Signed: ${data.valuedBy}
+Date: ${data.inspDate}`;
 }
 
 function compressImage(dataUrl, maxWidth, quality) {
