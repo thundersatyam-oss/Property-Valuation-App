@@ -333,6 +333,85 @@ body {
 .divider { height: 1px; background: var(--border); margin: 14px 0; }
 .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; }
+
+/* ── ROLE BADGE ── */
+.role-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.8px; text-transform: uppercase; }
+.role-master { background: var(--gold); color: var(--ink); }
+.role-sub { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+
+/* ── ANALYTICS GRID ── */
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.analytics-card { background: var(--surface); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.analytics-card .a-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); }
+.analytics-card .a-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.analytics-card.full { grid-column: 1 / -1; }
+.analytics-card.dark { background: var(--ink); border-color: var(--ink); }
+.analytics-card.dark .a-val { color: var(--gold); font-size: 26px; }
+.analytics-card.dark .a-lbl { color: rgba(255,255,255,0.5); }
+
+/* ── VALUER FILTER TABS ── */
+.filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
+.filter-tabs::-webkit-scrollbar { display: none; }
+.filter-tab { flex-shrink: 0; padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--cream); color: var(--muted); transition: all 0.2s; white-space: nowrap; }
+.filter-tab.active { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+
+/* ── TASK PAGES ── */
+#page-tasks { background: var(--cream); }
+#page-assign { background: var(--cream); }
+
+.task-card { background: var(--surface); border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); border: 1px solid var(--border); position: relative; overflow: hidden; }
+.task-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; }
+.task-card.priority-high::before { background: var(--danger); }
+.task-card.priority-medium::before { background: #e67e22; }
+.task-card.priority-low::before { background: var(--success); }
+.task-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.task-title { font-size: 15px; font-weight: 700; color: var(--ink); flex: 1; margin-right: 8px; }
+.task-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.badge-todo { background: #dbeafe; color: #1e40af; }
+.badge-progress { background: #fef3c7; color: #92400e; }
+.badge-done { background: #d1fae5; color: #065f46; }
+.task-meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.task-actions { display: flex; gap: 8px; }
+.task-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--cream); font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+.task-btn.primary { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+.task-btn.success { background: var(--success); color: #fff; border-color: var(--success); }
+
+/* ── ASSIGN TASK MODAL OVERLAY ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal-sheet { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 10px; margin: 0 auto 20px; }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 20px; }
+
+/* ── REPORT READER ── */
+#page-report-reader { background: var(--ink); }
+.reader-header { background: var(--ink); padding: 16px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.reader-header .back-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.reader-header-info { flex: 1; }
+.reader-header-info h3 { font-family: 'DM Serif Display', serif; font-size: 16px; color: #fff; }
+.reader-header-info p { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+.reader-pages { display: flex; overflow-x: hidden; scroll-snap-type: x mandatory; width: 100%; }
+.report-page { min-width: 100%; scroll-snap-align: start; padding: 24px 20px 100px; }
+.report-page-inner { background: #fff; border-radius: 16px; padding: 24px; min-height: 60vh; }
+.report-page-inner h2 { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--gold); }
+.report-page-inner p { font-size: 14px; line-height: 1.8; color: var(--ink); white-space: pre-wrap; }
+.report-page-inner .rp-field { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+.report-page-inner .rp-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; min-width: 100px; padding-top: 2px; }
+.report-page-inner .rp-value { font-size: 14px; color: var(--ink); flex: 1; }
+.val-highlight { background: var(--ink); color: var(--gold); border-radius: 12px; padding: 16px; text-align: center; margin: 16px 0; }
+.val-highlight .vh-val { font-family: 'DM Serif Display', serif; font-size: 28px; }
+.val-highlight .vh-lbl { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+/* ── READER NAV ── */
+.reader-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 10; }
+.reader-nav-btn { background: rgba(255,255,255,0.08); border: none; color: #fff; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+.reader-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+.reader-nav-btn.gold { background: var(--gold); color: var(--ink); }
+.page-indicator { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; flex: 1; }
+.page-dots { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
+.page-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.2s; }
+.page-dot.active { background: var(--gold); width: 18px; border-radius: 3px; }
 </style>
 </head>
 <body>
@@ -350,6 +429,13 @@ body {
       <div class="l-field" id="nameField" style="display:none">
         <label>Full Name</label>
         <input type="text" id="userName" placeholder="Your name">
+      </div>
+      <div class="l-field" id="roleField" style="display:none">
+        <label>Role</label>
+        <select id="userRole" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;-webkit-appearance:none">
+          <option value="sub">Valuer (Sub User)</option>
+          <option value="master">Master / Manager</option>
+        </select>
       </div>
       <div class="l-field">
         <label>Email Address</label>
@@ -373,27 +459,149 @@ body {
   <div class="top-bar">
     <span class="top-bar-logo">Valu<span>Pro</span></span>
     <div class="top-bar-right">
+      <span class="role-badge" id="roleBadge">SUB</span>
       <span class="user-chip" id="userChip">...</span>
+      <button class="icon-btn" id="taskNavBtn" onclick="showPage('page-tasks')" title="Tasks" style="display:none">📋</button>
       <button class="icon-btn" onclick="signOut()" title="Sign out">⏻</button>
     </div>
   </div>
   <div class="dash-content">
-    <div class="dash-stats">
-      <div class="stat-card"><div class="s-val" id="statTotal">0</div><div class="s-lbl">Total</div></div>
-      <div class="stat-card"><div class="s-val" id="statDone">0</div><div class="s-lbl">Complete</div></div>
-      <div class="stat-card"><div class="s-val" id="statDraft">0</div><div class="s-lbl">Draft</div></div>
+
+    <!-- Master analytics (hidden for sub) -->
+    <div id="masterAnalytics" style="display:none">
+      <div class="analytics-grid">
+        <div class="analytics-card dark full">
+          <div class="a-val" id="statTotalValue">₹0</div>
+          <div class="a-lbl">Total Portfolio Value</div>
+        </div>
+        <div class="analytics-card">
+          <div class="a-val" id="statTotal">0</div>
+          <div class="a-lbl">Total Inspections</div>
+        </div>
+        <div class="analytics-card">
+          <div class="a-val" id="statDone">0</div>
+          <div class="a-lbl">Completed</div>
+        </div>
+        <div class="analytics-card">
+          <div class="a-val" id="statDraft">0</div>
+          <div class="a-lbl">Drafts</div>
+        </div>
+        <div class="analytics-card">
+          <div class="a-val" id="statTasks">0</div>
+          <div class="a-lbl">Pending Tasks</div>
+        </div>
+      </div>
+      <!-- Valuer filter tabs -->
+      <div class="filter-tabs" id="valuerTabs"></div>
     </div>
+
+    <!-- Sub user stats -->
+    <div id="subStats" style="display:none">
+      <div class="dash-stats">
+        <div class="stat-card"><div class="s-val" id="subTotal">0</div><div class="s-lbl">My Inspections</div></div>
+        <div class="stat-card"><div class="s-val" id="subDone">0</div><div class="s-lbl">Complete</div></div>
+        <div class="stat-card"><div class="s-val" id="subTasks">0</div><div class="s-lbl">My Tasks</div></div>
+      </div>
+    </div>
+
     <div class="section-hdr">
-      <h3>Recent Inspections</h3>
+      <h3 id="listTitle">Inspections</h3>
+      <a id="assignBtn" onclick="openAssignModal()" style="display:none">+ Assign Task</a>
     </div>
     <div id="inspectionsList">
-      <div class="empty-state">
-        <span class="e-icon">📋</span>
-        <p>No inspections yet.<br>Tap + to start your first one.</p>
-      </div>
+      <div class="empty-state"><span class="e-icon">📋</span><p>No inspections yet.<br>Tap + to start your first one.</p></div>
     </div>
   </div>
   <button class="fab" onclick="startNewInspection()">+</button>
+</div>
+
+<!-- ═══════════════════════ TASKS PAGE ═══════════════════════ -->
+<div class="page" id="page-tasks">
+  <div class="top-bar">
+    <button class="icon-btn" onclick="showPage('page-dashboard');loadDashboard()" style="font-size:18px">←</button>
+    <span class="top-bar-logo" style="font-size:18px">My <span>Tasks</span></span>
+    <button class="icon-btn" id="newTaskBtn" onclick="openAssignModal()" style="display:none">+</button>
+  </div>
+  <div class="dash-content">
+    <div class="filter-tabs">
+      <span class="filter-tab active" onclick="filterTasks('all',this)">All</span>
+      <span class="filter-tab" onclick="filterTasks('To Do',this)">To Do</span>
+      <span class="filter-tab" onclick="filterTasks('In Progress',this)">In Progress</span>
+      <span class="filter-tab" onclick="filterTasks('Done',this)">Done</span>
+    </div>
+    <div id="tasksList"><div class="empty-state"><span class="e-icon">✅</span><p>No tasks yet.</p></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ ASSIGN TASK MODAL ═══════════════════════ -->
+<div class="modal-overlay" id="assignModal" onclick="closeAssignModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Assign New Task</div>
+
+    <div class="field">
+      <label>Task Type</label>
+      <div class="chip-wrap">
+        <span class="chip selected" onclick="selectOne(this,'ttype')">🏠 Inspection</span>
+        <span class="chip" onclick="selectOne(this,'ttype')">📋 General</span>
+        <span class="chip" onclick="selectOne(this,'ttype')">📄 Report</span>
+        <span class="chip" onclick="selectOne(this,'ttype')">📊 Market Survey</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Task Title</label>
+      <input type="text" id="taskTitle" placeholder="e.g. Inspect property at Sector 21">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="taskDesc" placeholder="Details, special instructions..." style="min-height:70px"></textarea>
+    </div>
+    <div class="field">
+      <label>Assign To</label>
+      <select id="taskAssignee"></select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Due Date</label>
+        <input type="date" id="taskDue">
+      </div>
+      <div class="field">
+        <label>Priority</label>
+        <select id="taskPriority">
+          <option value="High">🔴 High</option>
+          <option value="Medium" selected>🟠 Medium</option>
+          <option value="Low">🟢 Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Linked Property / Client</label>
+      <input type="text" id="taskProperty" placeholder="Optional — client or address">
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveTask()">Assign Task →</button>
+    <button class="btn btn-outline" style="width:100%;margin-top:8px" onclick="closeAssignModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ REPORT READER ═══════════════════════ -->
+<div class="page" id="page-report-reader">
+  <div class="reader-header">
+    <button class="back-btn" id="readerBackBtn" onclick="showPage('page-dashboard');loadDashboard()">← Back</button>
+    <div class="reader-header-info">
+      <h3 id="readerTitle">Valuation Report</h3>
+      <p id="readerSubtitle">Loading...</p>
+    </div>
+    <button class="reader-nav-btn" onclick="downloadReport()" style="padding:8px 12px;font-size:12px">📥</button>
+  </div>
+  <div class="reader-pages" id="readerPages"></div>
+  <div class="reader-nav">
+    <button class="reader-nav-btn" id="prevPageBtn" onclick="changePage(-1)" disabled>← Prev</button>
+    <div class="page-indicator">
+      <div id="pageLabel">Page 1 of 1</div>
+      <div class="page-dots" id="pageDots"></div>
+    </div>
+    <button class="reader-nav-btn gold" id="nextPageBtn" onclick="changePage(1)">Next →</button>
+  </div>
 </div>
 
 <!-- ═══════════════════════ INSPECTION APP ═══════════════════════ -->
@@ -693,190 +901,560 @@ body {
 </div>
 
 <!-- ═══════════════════════ REPORT ═══════════════════════ -->
-<div class="page" id="page-report">
-  <div class="report-header">
-    <div class="check">✅</div>
-    <h2>Report Ready</h2>
-    <p id="rptSubtitle">Valuation complete</p>
-  </div>
-  <div class="report-content">
-    <div class="report-val-box" id="rptValBox" style="display:none">
-      <div class="rv-lbl">Estimated Market Value</div>
-      <div class="rv-val" id="rptVal">₹0</div>
-      <div class="rv-range" id="rptRange">—</div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="icon">📄</span> Report Preview</div>
-      <div class="report-preview" id="reportPreview">Loading...</div>
-    </div>
-    <button class="dl-btn" onclick="downloadReport()">📥 Download Report (.txt)</button>
-    <button class="new-btn" onclick="goToDashboard()">← Back to Dashboard</button>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════ FIREBASE + APP LOGIC ═══════════════════════ -->
 <script>
-// ── Google Sheets + Drive backend (no Firebase) ──
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-tgUUGKuXMIdsGLeOmMRe7KgXSe2qRx4yMmVaqlabnDUMndSKhLThA3KKnsldZiCL/exec";
-
-// ── Simple local auth using localStorage ──
-let currentUser = JSON.parse(localStorage.getItem('valuepro_user') || 'null');
-let isSignUp = false;
-let currentInspectionId = null;
-let selectedType = 'Residential';
-let condition = 3;
-let locRating = 3;
-let photos = [];
-let reportText = '';
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let currentUser   = JSON.parse(localStorage.getItem('vp_user') || 'null');
+let isSignUp      = false;
+let selectedType  = 'Residential';
+let condition     = 3;
+let locRating     = 3;
+let photos        = [];
+let reportText    = '';
 let currentScreen = 0;
+let currentInspectionId = null;
+let activeValuerFilter  = 'all';
+let currentReportPages  = [];
+let currentReaderPage   = 0;
 const TOTAL = 5;
-let inspectionsCache = JSON.parse(localStorage.getItem('valuepro_inspections') || '[]');
 
-// ── Expose globals ──
-window.handleAuth = handleAuth;
-window.toggleAuthMode = toggleAuthMode;
-window.signOut = doSignOut;
+// helpers to get storage keys
+const usersKey  = () => 'vp_users';
+const inspsKey  = () => 'vp_inspections';
+const tasksKey  = () => 'vp_tasks';
+
+let inspectionsCache = JSON.parse(localStorage.getItem(inspsKey()) || '[]');
+let tasksCache       = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
+
+// ── Sequential ID generator ──
+function nextSeqId(key, prefix) {
+  const counter = parseInt(localStorage.getItem(key) || '0') + 1;
+  localStorage.setItem(key, counter);
+  return `${prefix}${String(counter).padStart(4, '0')}`;
+}
+
+// ════════════════════════════════════════════════
+//  EXPOSE GLOBALS
+// ════════════════════════════════════════════════
+window.handleAuth       = handleAuth;
+window.toggleAuthMode   = toggleAuthMode;
+window.signOut          = doSignOut;
 window.startNewInspection = startNewInspection;
-window.goToDashboard = goToDashboard;
-window.navigate = navigate;
-window.selectType = selectType;
-window.toggleChip = (el) => el.classList.toggle('selected');
-window.selectOne = selectOne;
-window.setCond = setCond;
-window.setStars = setStars;
-window.handlePhotos = handlePhotos;
-window.calcVal = calcVal;
-window.downloadReport = downloadReport;
+window.goToDashboard    = () => { showPage('page-dashboard'); loadDashboard(); };
+window.navigate         = navigate;
+window.selectType       = selectType;
+window.toggleChip       = el => el.classList.toggle('selected');
+window.selectOne        = selectOne;
+window.setCond          = setCond;
+window.setStars         = setStars;
+window.handlePhotos     = handlePhotos;
+window.removePhoto      = i => { photos.splice(i,1); renderPhotos(); };
+window.calcVal          = calcVal;
+window.downloadReport   = downloadReport;
+window.openAssignModal  = openAssignModal;
+window.closeAssignModal = closeAssignModal;
+window.saveTask         = saveTask;
+window.filterTasks      = filterTasks;
+window.changePage       = changePage;
+window.editReport       = editReport;
+window.resumeInspection = resumeInspection;
 
-// ── On load check session ──
+// ════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════
 window.addEventListener('load', () => {
-  if (currentUser) {
-    showPage('page-dashboard');
-    loadDashboard();
-  } else {
-    showPage('page-login');
-  }
+  if (currentUser) { showPage('page-dashboard'); loadDashboard(); }
+  else showPage('page-login');
 });
 
-// ── AUTH (local, no server needed) ──
+// ════════════════════════════════════════════════
+//  AUTH — local storage based
+// ════════════════════════════════════════════════
 function handleAuth() {
-  const email = document.getElementById('userEmail').value.trim();
+  const email    = document.getElementById('userEmail').value.trim();
   const password = document.getElementById('userPassword').value;
-  const errEl = document.getElementById('loginError');
+  const errEl    = document.getElementById('loginError');
   errEl.style.display = 'none';
 
-  if (!email || !password) {
-    errEl.style.display = 'block';
-    errEl.textContent = 'Please enter email and password.';
-    return;
-  }
-  if (password.length < 6) {
-    errEl.style.display = 'block';
-    errEl.textContent = 'Password must be at least 6 characters.';
-    return;
-  }
+  if (!email || !password) { showErr('Please enter email and password.'); return; }
+  if (password.length < 6) { showErr('Password must be at least 6 characters.'); return; }
 
-  const users = JSON.parse(localStorage.getItem('valuepro_users') || '{}');
+  const users = JSON.parse(localStorage.getItem(usersKey()) || '{}');
 
   if (isSignUp) {
     const name = document.getElementById('userName').value.trim();
-    if (!name) { errEl.style.display='block'; errEl.textContent='Please enter your name.'; return; }
-    if (users[email]) { errEl.style.display='block'; errEl.textContent='Email already registered. Please sign in.'; return; }
-    users[email] = { name, password, email };
-    localStorage.setItem('valuepro_users', JSON.stringify(users));
-    currentUser = { name, email };
+    const role = document.getElementById('userRole').value;
+    if (!name) { showErr('Please enter your name.'); return; }
+    if (users[email]) { showErr('Email already registered. Please sign in.'); return; }
+
+    // First ever user becomes master automatically
+    const isMaster = role === 'master' || Object.keys(users).length === 0;
+    users[email] = { name, password, email, role: isMaster ? 'master' : 'sub' };
+    localStorage.setItem(usersKey(), JSON.stringify(users));
+    currentUser = { name, email, role: users[email].role };
   } else {
     const user = users[email];
-    if (!user || user.password !== password) {
-      errEl.style.display = 'block';
-      errEl.textContent = 'Wrong email or password. Try again.';
-      return;
-    }
-    currentUser = { name: user.name, email };
+    if (!user || user.password !== password) { showErr('Wrong email or password.'); return; }
+    currentUser = { name: user.name, email, role: user.role };
   }
 
-  localStorage.setItem('valuepro_user', JSON.stringify(currentUser));
+  localStorage.setItem('vp_user', JSON.stringify(currentUser));
   showPage('page-dashboard');
   loadDashboard();
+
+  function showErr(msg) {
+    errEl.style.display = 'block'; errEl.textContent = msg;
+  }
 }
 
 function toggleAuthMode() {
   isSignUp = !isSignUp;
-  document.getElementById('loginTitle').textContent = isSignUp ? 'Create your account' : 'Welcome back';
-  document.getElementById('loginBtn').textContent = isSignUp ? 'Create Account' : 'Sign In';
-  document.getElementById('toggleText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
-  document.getElementById('toggleLink').textContent = isSignUp ? 'Sign in' : 'Sign up';
-  document.getElementById('nameField').style.display = isSignUp ? 'block' : 'none';
+  document.getElementById('loginTitle').textContent   = isSignUp ? 'Create account' : 'Welcome back';
+  document.getElementById('loginBtn').textContent     = isSignUp ? 'Create Account' : 'Sign In';
+  document.getElementById('toggleText').textContent   = isSignUp ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('toggleLink').textContent   = isSignUp ? 'Sign in' : 'Sign up';
+  document.getElementById('nameField').style.display  = isSignUp ? 'block' : 'none';
+  document.getElementById('roleField').style.display  = isSignUp ? 'block' : 'none';
   document.getElementById('loginError').style.display = 'none';
 }
 
 function doSignOut() {
-  localStorage.removeItem('valuepro_user');
+  localStorage.removeItem('vp_user');
   currentUser = null;
   showPage('page-login');
 }
 
-// ── DASHBOARD ──
+// ════════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════════
 function loadDashboard() {
-  document.getElementById('userChip').textContent = currentUser.name || currentUser.email;
-  inspectionsCache = JSON.parse(localStorage.getItem('valuepro_inspections') || '[]');
+  inspectionsCache = JSON.parse(localStorage.getItem(inspsKey()) || '[]');
+  tasksCache       = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
 
-  const total = inspectionsCache.length;
-  const done = inspectionsCache.filter(i => i.status === 'complete').length;
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statDone').textContent = done;
-  document.getElementById('statDraft').textContent = total - done;
+  const isMaster = currentUser.role === 'master';
+  document.getElementById('userChip').textContent = currentUser.name;
+  document.getElementById('roleBadge').textContent = isMaster ? '👑 MASTER' : 'VALUER';
+  document.getElementById('roleBadge').className   = 'role-badge ' + (isMaster ? 'role-master' : 'role-sub');
+  document.getElementById('taskNavBtn').style.display = 'flex';
+  document.getElementById('newTaskBtn').style.display = isMaster ? 'flex' : 'none';
+  document.getElementById('assignBtn').style.display  = isMaster ? 'block' : 'none';
+  document.getElementById('masterAnalytics').style.display = isMaster ? 'block' : 'none';
+  document.getElementById('subStats').style.display        = isMaster ? 'none' : 'block';
 
-  const list = document.getElementById('inspectionsList');
-  if (!total) {
-    list.innerHTML = `<div class="empty-state"><span class="e-icon">📋</span><p>No inspections yet.<br>Tap + to start your first one.</p></div>`;
+  if (isMaster) loadMasterDashboard();
+  else loadSubDashboard();
+}
+
+function loadMasterDashboard() {
+  const all    = inspectionsCache;
+  const done   = all.filter(i => i.status === 'complete');
+  const totalV = done.reduce((s,i) => s + (Number(i.estimatedValue)||0), 0);
+  const myTasks = tasksCache.filter(t => t.status !== 'Done');
+
+  document.getElementById('statTotal').textContent      = all.length;
+  document.getElementById('statDone').textContent       = done.length;
+  document.getElementById('statDraft').textContent      = all.filter(i=>i.status!=='complete').length;
+  document.getElementById('statTasks').textContent      = myTasks.length;
+  document.getElementById('statTotalValue').textContent = totalV > 0 ? '₹' + totalV.toLocaleString('en-IN') : '₹0';
+
+  // Valuer filter tabs
+  const valuers = [...new Set(all.map(i => i.valuedBy).filter(Boolean))];
+  const tabsEl  = document.getElementById('valuerTabs');
+  tabsEl.innerHTML = `<span class="filter-tab ${activeValuerFilter==='all'?'active':''}" onclick="setValuerFilter('all',this)">All Valuers</span>` +
+    valuers.map(v => `<span class="filter-tab ${activeValuerFilter===v?'active':''}" onclick="setValuerFilter('${v}',this)">${v}</span>`).join('');
+
+  const filtered = activeValuerFilter === 'all' ? all : all.filter(i => i.valuedBy === activeValuerFilter);
+  document.getElementById('listTitle').textContent = activeValuerFilter === 'all' ? 'All Inspections' : activeValuerFilter + "'s Inspections";
+  renderInspections(filtered);
+}
+
+function loadSubDashboard() {
+  const mine    = inspectionsCache.filter(i => i.valuedBy === currentUser.name);
+  const myTasks = tasksCache.filter(t => t.assignee === currentUser.name && t.status !== 'Done');
+
+  document.getElementById('subTotal').textContent = mine.length;
+  document.getElementById('subDone').textContent  = mine.filter(i=>i.status==='complete').length;
+  document.getElementById('subTasks').textContent = myTasks.length;
+  document.getElementById('listTitle').textContent = 'My Inspections';
+  renderInspections(mine);
+}
+
+window.setValuerFilter = (val, el) => {
+  activeValuerFilter = val;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  loadMasterDashboard();
+};
+
+function renderInspections(list) {
+  const el = document.getElementById('inspectionsList');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><span class="e-icon">📋</span><p>No inspections yet.<br>Tap + to start.</p></div>`;
     return;
   }
-
-  const sorted = [...inspectionsCache].reverse();
-  list.innerHTML = sorted.map(i => `
-    <div class="insp-card" onclick="viewSavedReport('${i.id}')">
+  // Latest first
+  const sorted = [...list].sort((a,b) => (b.id||'').localeCompare(a.id||''));
+  el.innerHTML = sorted.map(i => {
+    const done = i.status === 'complete';
+    return `
+    <div class="insp-card">
       <div class="insp-card-top">
-        <span class="insp-ref">${i.refNo || '—'}</span>
-        <span class="insp-status ${i.status === 'complete' ? 'status-complete' : 'status-draft'}">${i.status === 'complete' ? '✓ Complete' : '✏ Draft'}</span>
+        <span class="insp-ref">${i.refNo||'—'}</span>
+        <span class="insp-status ${done?'status-complete':'status-draft'}">${done?'✓ Complete':'✏ Draft'}</span>
       </div>
-      <div class="insp-addr">${i.address || 'Address not set'}</div>
+      <div class="insp-addr">${i.address||'Address not set'}</div>
       <div class="insp-meta">
-        <span>🏗️ ${i.propertyType || '—'}</span>
-        <span>👤 ${i.valuedBy || '—'}</span>
-        <span>📅 ${i.inspDate || '—'}</span>
-        ${i.estimatedValue ? `<span>💰 ₹${Number(i.estimatedValue).toLocaleString('en-IN')}</span>` : ''}
-        ${i.sheetSaved ? '<span>☁️ Saved to Sheets</span>' : '<span style="color:#e67e22">⚠️ Local only</span>'}
+        <span>🏗️ ${i.propertyType||'—'}</span>
+        <span>👤 ${i.valuedBy||'—'}</span>
+        <span>📅 ${i.inspDate||'—'}</span>
+        ${i.estimatedValue?`<span>💰 ₹${Number(i.estimatedValue).toLocaleString('en-IN')}</span>`:''}
+        <span title="${i.sheetSaved?'Synced to Sheets':'Local only'}">${i.sheetSaved?'☁️':'📱'}</span>
+      </div>
+      ${done ? `
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button onclick="openReportReader('${i.id}')" style="flex:2;padding:9px;background:var(--ink);color:var(--gold);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">📄 View Report</button>
+        <button onclick="editReport('${i.id}')" style="flex:1;padding:9px;background:var(--cream);color:var(--ink);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">✏️ Edit</button>
+      </div>` : `
+      <div style="margin-top:10px">
+        <button onclick="resumeInspection('${i.id}')" style="width:100%;padding:9px;background:var(--cream);color:var(--ink);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">▶ Resume Draft</button>
+      </div>`}
+    </div>`;
+  }).join('');
+}
+
+// ── EDIT REPORT ──
+window.editReport = (id) => {
+  const insp = inspectionsCache.find(i => i.id === id);
+  if (!insp) return;
+
+  // Build edit modal inline
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;gap:12px">
+      <div style="width:40px;height:4px;background:#e8e4d9;border-radius:10px;margin:0 auto"></div>
+      <div style="font-family:'DM Serif Display',serif;font-size:20px">Edit Report — ${insp.refNo}</div>
+      <div style="font-size:12px;color:#72728a">Edit the AI-generated report text below. Changes save locally and re-sync to Sheets.</div>
+      <textarea id="editReportText" style="flex:1;min-height:340px;padding:14px;border:1.5px solid #e8e4d9;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.7;resize:vertical">${insp.reportText||''}</textarea>
+      <div style="display:flex;gap:10px">
+        <button onclick="saveEditedReport('${id}')" style="flex:2;padding:13px;background:#14142b;color:#c9a84c;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">💾 Save Changes</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="flex:1;padding:13px;background:#faf8f3;color:#14142b;border:1.5px solid #e8e4d9;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+};
+
+window.saveEditedReport = async (id) => {
+  const newText = document.getElementById('editReportText').value;
+  const idx = inspectionsCache.findIndex(i => i.id === id);
+  if (idx < 0) return;
+
+  inspectionsCache[idx].reportText = newText;
+  inspectionsCache[idx].editedAt   = new Date().toISOString();
+  localStorage.setItem(inspsKey(), JSON.stringify(inspectionsCache));
+
+  // Re-sync updated report to Sheets
+  try {
+    await postToScript({
+      type: 'update_report',
+      refNo: inspectionsCache[idx].refNo,
+      reportText: newText,
+      editedAt: inspectionsCache[idx].editedAt
+    });
+    showToast('✅ Report updated & synced to Sheets!');
+  } catch(e) {
+    showToast('✅ Report saved locally');
+  }
+
+  document.querySelector('[style*="position:fixed"][style*="z-index:300"]')?.remove();
+  loadDashboard();
+};
+
+// ── RESUME DRAFT ──
+window.resumeInspection = (id) => {
+  const insp = inspectionsCache.find(i => i.id === id);
+  if (!insp) return;
+  currentInspectionId = id;
+  showPage('page-app');
+  showToast('Draft loaded — continue from where you left off');
+};
+
+// ════════════════════════════════════════════════
+//  REPORT READER (paginated)
+// ════════════════════════════════════════════════
+function openReportReader(id) {
+  const insp = inspectionsCache.find(i => i.id === id);
+  if (!insp) return;
+  reportText = insp.reportText || '';
+  currentReaderPage = 0;
+
+  document.getElementById('readerTitle').textContent    = insp.refNo || 'Valuation Report';
+  document.getElementById('readerSubtitle').textContent = insp.address || '';
+
+  // Build pages from inspection data + report text
+  currentReportPages = buildReportPages(insp);
+  renderReaderPages();
+  showPage('page-report-reader');
+}
+
+function buildReportPages(insp) {
+  const val    = Number(insp.estimatedValue) || 0;
+  const pages  = [];
+
+  // Page 1 — Cover / Summary
+  pages.push({
+    title: '📋 Inspection Summary',
+    html: `
+      <div class="rp-field"><span class="rp-label">Ref No.</span><span class="rp-value">${insp.refNo||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Date</span><span class="rp-value">${insp.inspDate||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Valuer</span><span class="rp-value">${insp.valuedBy||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Client</span><span class="rp-value">${insp.client||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Purpose</span><span class="rp-value">${insp.purpose||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Address</span><span class="rp-value">${insp.address||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Property</span><span class="rp-value">${insp.propertyType||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">GPS</span><span class="rp-value">${insp.gps||'—'}</span></div>`
+  });
+
+  // Page 2 — Property Details
+  pages.push({
+    title: '🏗️ Property Details',
+    html: `
+      <div class="rp-field"><span class="rp-label">Built-up</span><span class="rp-value">${insp.builtArea||'—'} sq.ft</span></div>
+      <div class="rp-field"><span class="rp-label">Plot Area</span><span class="rp-value">${insp.plotArea||'—'} sq.ft</span></div>
+      <div class="rp-field"><span class="rp-label">Config</span><span class="rp-value">${insp.bhk||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Bedrooms</span><span class="rp-value">${insp.bedrooms||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Bathrooms</span><span class="rp-value">${insp.bathrooms||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Year Built</span><span class="rp-value">${insp.yearBuilt||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Floors</span><span class="rp-value">${insp.floors||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Amenities</span><span class="rp-value">${(insp.amenities||[]).join(', ')||'—'}</span></div>`
+  });
+
+  // Page 3 — Condition
+  pages.push({
+    title: '🔍 Condition Assessment',
+    html: `
+      <div class="rp-field"><span class="rp-label">Overall</span><span class="rp-value">${insp.condition||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Foundation</span><span class="rp-value">${insp.foundation||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Walls</span><span class="rp-value">${insp.walls||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Roof</span><span class="rp-value">${insp.roof||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Flooring</span><span class="rp-value">${insp.flooring||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Electricity</span><span class="rp-value">${insp.electricity||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Water</span><span class="rp-value">${insp.water||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Drainage</span><span class="rp-value">${insp.drainage||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Legal</span><span class="rp-value">${insp.legalStatus||'—'}</span></div>
+      ${insp.observations?`<div style="margin-top:14px;padding:12px;background:#faf8f3;border-radius:10px;font-size:13px;line-height:1.7"><strong>Observations:</strong><br>${insp.observations}</div>`:''}` 
+  });
+
+  // Page 4 — Market & Valuation
+  pages.push({
+    title: '💰 Market & Valuation',
+    html: `
+      <div class="rp-field"><span class="rp-label">Trend</span><span class="rp-value">${insp.marketTrend||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Method</span><span class="rp-value">${insp.valuationMethod||'—'}</span></div>
+      <div class="rp-field"><span class="rp-label">Rate</span><span class="rp-value">₹${insp.estimatedRate||0}/sq.ft</span></div>
+      ${(insp.comparables||[]).filter(c=>c.address).map((c,i)=>`
+      <div class="rp-field"><span class="rp-label">Comp ${i+1}</span><span class="rp-value">${c.address} @ ₹${c.rate}/sq.ft</span></div>`).join('')}
+      ${val>0?`<div class="val-highlight"><div class="vh-lbl">ESTIMATED MARKET VALUE</div><div class="vh-val">₹${val.toLocaleString('en-IN')}</div><div class="vh-lbl" style="margin-top:6px">Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}</div></div>`:''}
+      ${insp.marketRemarks?`<div style="margin-top:12px;padding:12px;background:#faf8f3;border-radius:10px;font-size:13px">${insp.marketRemarks}</div>`:''}`
+  });
+
+  // Pages 5+ — AI Report split by sections
+  if (insp.reportText) {
+    const sections = insp.reportText.split(/\n(?=\d+\.\s+[A-Z])/);
+    sections.forEach((sec, i) => {
+      if (sec.trim()) {
+        pages.push({
+          title: `📄 Report — Part ${i+1}`,
+          html: `<p>${sec.trim()}</p>`
+        });
+      }
+    });
+  }
+
+  return pages;
+}
+
+function renderReaderPages() {
+  const container = document.getElementById('readerPages');
+  container.innerHTML = currentReportPages.map((p, i) => `
+    <div class="report-page" id="rp-${i}">
+      <div class="report-page-inner">
+        <h2>${p.title}</h2>
+        ${p.html}
       </div>
     </div>`).join('');
 
-  window.viewSavedReport = (id) => {
-    const insp = inspectionsCache.find(i => i.id === id);
-    if (!insp) return;
-    reportText = insp.reportText || 'No report generated.';
-    const val = insp.estimatedValue || 0;
-    if (val > 0) {
-      document.getElementById('rptValBox').style.display = 'block';
-      document.getElementById('rptVal').textContent = '₹' + Number(val).toLocaleString('en-IN');
-      document.getElementById('rptRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
-    } else {
-      document.getElementById('rptValBox').style.display = 'none';
-    }
-    document.getElementById('rptSubtitle').textContent = `${insp.refNo} — ${insp.address || ''}`;
-    document.getElementById('reportPreview').textContent = reportText;
-    showPage('page-report');
-  };
+  // Dots
+  const dots = document.getElementById('pageDots');
+  dots.innerHTML = currentReportPages.map((_,i) =>
+    `<div class="page-dot ${i===0?'active':''}" id="dot-${i}"></div>`).join('');
+
+  updateReaderNav();
 }
 
-// ── NEW INSPECTION ──
+function changePage(dir) {
+  const newPage = currentReaderPage + dir;
+  if (newPage < 0 || newPage >= currentReportPages.length) return;
+  currentReaderPage = newPage;
+
+  // Scroll to page
+  const page = document.getElementById('rp-' + newPage);
+  if (page) page.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  updateReaderNav();
+}
+
+function updateReaderNav() {
+  const total = currentReportPages.length;
+  document.getElementById('pageLabel').textContent   = `Page ${currentReaderPage+1} of ${total}`;
+  document.getElementById('prevPageBtn').disabled    = currentReaderPage === 0;
+  document.getElementById('nextPageBtn').disabled    = currentReaderPage === total - 1;
+  document.getElementById('nextPageBtn').textContent = currentReaderPage === total-1 ? '✓ Done' : 'Next →';
+
+  document.querySelectorAll('.page-dot').forEach((d,i) => d.classList.toggle('active', i===currentReaderPage));
+}
+
+// ════════════════════════════════════════════════
+//  TASKS
+// ════════════════════════════════════════════════
+function openAssignModal() {
+  // Populate assignee dropdown with all sub users
+  const users = JSON.parse(localStorage.getItem(usersKey()) || '{}');
+  const sel   = document.getElementById('taskAssignee');
+  sel.innerHTML = Object.values(users)
+    .map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
+
+  // Default due date to tomorrow
+  const tom = new Date(); tom.setDate(tom.getDate()+1);
+  document.getElementById('taskDue').value = tom.toISOString().split('T')[0];
+  document.getElementById('assignModal').classList.add('active');
+}
+
+function closeAssignModal(e) {
+  if (!e || e.target === document.getElementById('assignModal'))
+    document.getElementById('assignModal').classList.remove('active');
+}
+
+function saveTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  if (!title) { showToast('Please enter a task title'); return; }
+
+  const taskType = document.querySelector('#assignModal .chip.selected')?.textContent.trim() || 'General';
+  const task = {
+    id:         nextSeqId('vp_task_counter', 'TK-'),
+    type:       taskType,
+    title,
+    desc:       document.getElementById('taskDesc').value,
+    assignee:   document.getElementById('taskAssignee').value,
+    dueDate:    document.getElementById('taskDue').value,
+    priority:   document.getElementById('taskPriority').value,
+    property:   document.getElementById('taskProperty').value,
+    assignedBy: currentUser.name,
+    status:     'To Do',
+    createdAt:  new Date().toISOString()
+  };
+
+  tasksCache.push(task);
+  localStorage.setItem(tasksKey(), JSON.stringify(tasksCache));
+
+  // Save task to Google Sheets so all team devices see it
+  postToScript({ type: 'task', ...task }).catch(e => console.log('Task sync error:', e));
+
+  document.getElementById('taskTitle').value    = '';
+  document.getElementById('taskDesc').value     = '';
+  document.getElementById('taskProperty').value = '';
+  document.getElementById('assignModal').classList.remove('active');
+
+  showToast(`✅ ${task.id} assigned to ${task.assignee}`);
+  loadDashboard();
+  renderTasksList('all');
+}
+
+function renderTasksList(filter) {
+  const isMaster = currentUser.role === 'master';
+  let tasks = isMaster
+    ? tasksCache
+    : tasksCache.filter(t => t.assignee === currentUser.name);
+
+  if (filter && filter !== 'all') tasks = tasks.filter(t => t.status === filter);
+  tasks = [...tasks].reverse();
+
+  const el = document.getElementById('tasksList');
+  if (!tasks.length) {
+    el.innerHTML = `<div class="empty-state"><span class="e-icon">✅</span><p>No tasks here.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = tasks.map(t => {
+    const pclass = { High:'priority-high', Medium:'priority-medium', Low:'priority-low' }[t.priority] || '';
+    const bclass = { 'To Do':'badge-todo', 'In Progress':'badge-progress', 'Done':'badge-done' }[t.status] || 'badge-todo';
+    const isMyTask = t.assignee === currentUser.name;
+    return `
+    <div class="task-card ${pclass}">
+      <div class="task-top">
+        <span class="task-title">${t.title}</span>
+        <span class="task-badge ${bclass}">${t.status}</span>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:6px">${t.id} · Assigned by ${t.assignedBy}</div>
+      <div class="task-meta">
+        <span>📋 ${t.type}</span>
+        <span>👤 ${t.assignee}</span>
+        ${t.dueDate?`<span>📅 ${t.dueDate}</span>`:''}
+        ${t.property?`<span>🏠 ${t.property}</span>`:''}
+        <span>${{High:'🔴',Medium:'🟠',Low:'🟢'}[t.priority]||'⚪'} ${t.priority}</span>
+      </div>
+      ${t.desc?`<div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5">${t.desc}</div>`:''}
+      <div class="task-actions">
+        ${t.status==='To Do' && isMyTask ? `<button class="task-btn primary" onclick="updateTaskStatus('${t.id}','In Progress')">▶ Start</button>` : ''}
+        ${t.status==='In Progress' && isMyTask ? `<button class="task-btn success" onclick="updateTaskStatus('${t.id}','Done')">✓ Mark Done</button>` : ''}
+        ${t.status==='Done' ? `<span class="task-btn" style="text-align:center;background:#d1fae5;color:#065f46;border-color:#a7f3d0">✓ Completed</span>` : ''}
+        ${isMaster ? `<button class="task-btn" onclick="deleteTask('${t.id}')" style="max-width:44px;flex:none">🗑</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.updateTaskStatus = (id, status) => {
+  const idx = tasksCache.findIndex(t => t.id === id);
+  if (idx >= 0) { tasksCache[idx].status = status; localStorage.setItem(tasksKey(), JSON.stringify(tasksCache)); }
+  showToast(status === 'Done' ? '✅ Task marked done!' : '▶ Task started!');
+  renderTasksList('all');
+  loadDashboard();
+};
+
+window.deleteTask = (id) => {
+  tasksCache = tasksCache.filter(t => t.id !== id);
+  localStorage.setItem(tasksKey(), JSON.stringify(tasksCache));
+  renderTasksList('all');
+  loadDashboard();
+};
+
+function filterTasks(filter, el) {
+  document.querySelectorAll('#page-tasks .filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderTasksList(filter);
+}
+
+// Also render tasks when page-tasks becomes active
+const origShowPage = window.showPage;
+window.showPage = function(id) {
+  showPage(id);
+  if (id === 'page-tasks') renderTasksList('all');
+};
+
+// ════════════════════════════════════════════════
+//  INSPECTION FLOW
+// ════════════════════════════════════════════════
 function startNewInspection() {
   resetForm();
   currentInspectionId = 'insp_' + Date.now();
+  const refNo = nextSeqId('vp_insp_counter', 'VP-');
   showPage('page-app');
   document.getElementById('inspDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('refNo').value = 'VP-' + Date.now().toString().slice(-6);
+  document.getElementById('refNo').value    = refNo;
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(p => {
       document.getElementById('gps').value = p.coords.latitude.toFixed(6) + ', ' + p.coords.longitude.toFixed(6);
@@ -892,23 +1470,17 @@ function resetForm() {
   document.querySelectorAll('#locStars .star').forEach((s,i) => s.classList.toggle('lit', i<3));
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
   document.querySelectorAll('input[type=text], input[type=number], textarea').forEach(el => { if(!['refNo','inspDate'].includes(el.id)) el.value=''; });
-  document.getElementById('photoGrid').innerHTML = '';
-  document.getElementById('uploadProgress').textContent = '';
-  document.getElementById('valResult').style.display = 'none';
-  ['res-f','com-f','ind-f','land-f'].forEach(id => document.getElementById(id).style.display = id==='res-f' ? 'block' : 'none');
+  document.getElementById('photoGrid').innerHTML='';
+  document.getElementById('uploadProgress').textContent='';
+  document.getElementById('valResult').style.display='none';
+  ['res-f','com-f','ind-f','land-f'].forEach(id => document.getElementById(id).style.display = id==='res-f'?'block':'none');
   updateNav();
 }
 
-function goToDashboard() {
-  showPage('page-dashboard');
-  loadDashboard();
-}
-
-// ── NAVIGATION ──
 function navigate(dir) {
-  if (dir === 1 && currentScreen === TOTAL - 1) { startProcessing(); return; }
+  if (dir===1 && currentScreen===TOTAL-1) { startProcessing(); return; }
   const next = currentScreen + dir;
-  if (next < 0 || next >= TOTAL) return;
+  if (next<0 || next>=TOTAL) return;
   document.getElementById('sc'+currentScreen).classList.remove('active');
   currentScreen = next;
   document.getElementById('sc'+currentScreen).classList.add('active');
@@ -917,24 +1489,25 @@ function navigate(dir) {
 }
 
 function updateNav() {
-  const labels = document.querySelectorAll('.step-label');
-  labels.forEach((l,i) => { l.classList.remove('active','done'); if(i===currentScreen) l.classList.add('active'); else if(i<currentScreen) l.classList.add('done'); });
+  document.querySelectorAll('.step-label').forEach((l,i) => {
+    l.classList.remove('active','done');
+    if (i===currentScreen) l.classList.add('active');
+    else if (i<currentScreen) l.classList.add('done');
+  });
   document.getElementById('progressFill').style.width = ((currentScreen+1)/TOTAL*100)+'%';
-  document.getElementById('btnBack').style.display = currentScreen > 0 ? 'flex' : 'none';
-  const btnNext = document.getElementById('btnNext');
-  if (currentScreen === TOTAL-1) { btnNext.textContent = '🤖 Generate Report'; btnNext.className = 'btn btn-gold'; }
-  else { btnNext.textContent = 'Next →'; btnNext.className = 'btn btn-primary'; }
+  document.getElementById('btnBack').style.display = currentScreen>0 ? 'flex' : 'none';
+  const b = document.getElementById('btnNext');
+  if (currentScreen===TOTAL-1) { b.textContent='🤖 Generate Report'; b.className='btn btn-gold'; }
+  else { b.textContent='Next →'; b.className='btn btn-primary'; }
 }
 
-// ── FORM HELPERS ──
 function selectType(el, type) {
   document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected'); selectedType = type;
-  ['res-f','com-f','ind-f','land-f'].forEach(id => document.getElementById(id).style.display = 'none');
-  const map = {Residential:'res-f',Commercial:'com-f',Industrial:'ind-f',Land:'land-f'};
-  document.getElementById(map[type]).style.display = 'block';
+  ['res-f','com-f','ind-f','land-f'].forEach(id => document.getElementById(id).style.display='none');
+  document.getElementById({Residential:'res-f',Commercial:'com-f',Industrial:'ind-f',Land:'land-f'}[type]).style.display='block';
 }
-function selectOne(el, group) {
+function selectOne(el) {
   el.closest('.chip-wrap').querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
 }
@@ -944,311 +1517,202 @@ function setCond(el) {
 }
 function setStars(n) {
   locRating = n;
-  document.querySelectorAll('#locStars .star').forEach((s,i) => s.classList.toggle('lit', i < n));
+  document.querySelectorAll('#locStars .star').forEach((s,i) => s.classList.toggle('lit', i<n));
 }
 
-// ── PHOTOS ──
 async function handlePhotos(input) {
   const files = Array.from(input.files);
   document.getElementById('uploadProgress').textContent = `Loading ${files.length} photo(s)...`;
   for (const file of files) {
     const reader = new FileReader();
-    await new Promise(res => { reader.onload = e => { photos.push({dataUrl: e.target.result, label: file.name.split('.')[0], file}); res(); }; reader.readAsDataURL(file); });
+    await new Promise(res => { reader.onload = e => { photos.push({dataUrl:e.target.result, label:file.name.split('.')[0], file}); res(); }; reader.readAsDataURL(file); });
   }
   renderPhotos();
-  document.getElementById('uploadProgress').textContent = `✅ ${photos.length} photo(s) ready — will upload to Drive`;
-  input.value = '';
+  document.getElementById('uploadProgress').textContent = `✅ ${photos.length} photo(s) ready`;
+  input.value='';
 }
 function renderPhotos() {
-  const grid = document.getElementById('photoGrid');
-  grid.innerHTML = photos.map((p,i) => `
-    <div class="photo-thumb">
-      <img src="${p.dataUrl}">
+  document.getElementById('photoGrid').innerHTML = photos.map((p,i) => `
+    <div class="photo-thumb"><img src="${p.dataUrl}">
       <div class="pt-label"><input type="text" placeholder="Label..." value="${p.label}" onchange="photos[${i}].label=this.value"></div>
       <button class="rm-btn" onclick="removePhoto(${i})">×</button>
     </div>`).join('');
 }
-window.removePhoto = (i) => { photos.splice(i,1); renderPhotos(); };
 
-// ── CALC ──
 function calcVal() {
   const rate = +document.getElementById('estRate').value;
   const area = +document.getElementById('builtArea')?.value || +document.getElementById('plotArea')?.value || 0;
   if (!rate) { document.getElementById('valResult').style.display='none'; return; }
-  const val = rate * (area || 1000);
-  document.getElementById('valResult').style.display = 'block';
-  document.getElementById('valAmount').textContent = '₹' + val.toLocaleString('en-IN');
-  document.getElementById('valRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
+  const val = rate*(area||1000);
+  document.getElementById('valResult').style.display='block';
+  document.getElementById('valAmount').textContent = '₹'+val.toLocaleString('en-IN');
+  document.getElementById('valRange').textContent  = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
 }
 
-// ── COLLECT DATA ──
 function collectData() {
-  const chips = (wrap) => wrap ? Array.from(wrap.querySelectorAll('.chip.selected')).map(c=>c.textContent) : [];
-  const comps = Array.from(document.querySelectorAll('.comp-row')).map(r => ({
-    address: r.querySelector('.c-addr').value,
-    rate: r.querySelector('.c-rate').value,
-    area: r.querySelector('.c-area').value,
-    date: r.querySelector('.c-date').value
-  })).filter(c => c.address || c.rate);
-  const trend = document.querySelector('#sc4 .chip-wrap .chip.selected')?.textContent || 'Stable';
+  const chips = wrap => wrap ? Array.from(wrap.querySelectorAll('.chip.selected')).map(c=>c.textContent) : [];
+  const comps = Array.from(document.querySelectorAll('.comp-row')).map(r=>({
+    address:r.querySelector('.c-addr').value, rate:r.querySelector('.c-rate').value,
+    area:r.querySelector('.c-area').value,    date:r.querySelector('.c-date').value
+  })).filter(c=>c.address||c.rate);
   const condLabels = {1:'Very Poor',2:'Poor',3:'Average',4:'Good',5:'Excellent'};
-  const rate = +document.getElementById('estRate').value || 0;
-  const area = +document.getElementById('builtArea')?.value || +document.getElementById('plotArea')?.value || 0;
-
+  const rate = +document.getElementById('estRate').value||0;
+  const area = +document.getElementById('builtArea')?.value || +document.getElementById('plotArea')?.value||0;
   return {
     id: currentInspectionId,
-    refNo: document.getElementById('refNo').value,
-    inspDate: document.getElementById('inspDate').value,
-    valuedBy: currentUser.name || currentUser.email,
-    client: document.getElementById('clientName').value,
-    purpose: document.getElementById('valPurpose').value,
-    address: [document.getElementById('addr1').value, document.getElementById('locality').value, document.getElementById('city').value, document.getElementById('pincode').value].filter(Boolean).join(', '),
-    city: document.getElementById('city').value,
-    gps: document.getElementById('gps').value,
+    refNo:      document.getElementById('refNo').value,
+    inspDate:   document.getElementById('inspDate').value,
+    valuedBy:   currentUser.name,
+    client:     document.getElementById('clientName').value,
+    purpose:    document.getElementById('valPurpose').value,
+    address:    [document.getElementById('addr1').value, document.getElementById('locality').value, document.getElementById('city').value, document.getElementById('pincode').value].filter(Boolean).join(', '),
+    city:       document.getElementById('city').value,
+    gps:        document.getElementById('gps').value,
     propertyType: selectedType,
-    condition: condLabels[condition] + ` (${condition}/5)`,
+    condition:  condLabels[condition]+` (${condition}/5)`,
     foundation: document.getElementById('foundation').value,
-    walls: document.getElementById('walls').value,
-    roof: document.getElementById('roof').value,
-    flooring: document.getElementById('flooring').value,
-    electricity: document.getElementById('electricity').value,
-    water: document.getElementById('water').value,
-    drainage: document.getElementById('drainage').value,
-    legalStatus: document.getElementById('legalStatus').value,
+    walls:      document.getElementById('walls').value,
+    roof:       document.getElementById('roof').value,
+    flooring:   document.getElementById('flooring').value,
+    electricity:document.getElementById('electricity').value,
+    water:      document.getElementById('water').value,
+    drainage:   document.getElementById('drainage').value,
+    legalStatus:document.getElementById('legalStatus').value,
     roadAccess: document.getElementById('roadAccess').value,
-    transport: document.getElementById('transport').value,
-    landmarks: document.getElementById('landmarks').value,
+    transport:  document.getElementById('transport').value,
+    landmarks:  document.getElementById('landmarks').value,
     locationRating: locRating+'/5',
-    observations: document.getElementById('observations').value,
-    amenities: chips(document.getElementById('amenityChips')),
+    observations:   document.getElementById('observations').value,
+    amenities:  chips(document.getElementById('amenityChips')),
     photoCount: photos.length,
-    builtArea: document.getElementById('builtArea')?.value || '',
-    plotArea: document.getElementById('plotArea')?.value || '',
-    bhk: document.getElementById('bhk')?.value || '',
-    bedrooms: document.getElementById('bedrooms')?.value || '',
-    bathrooms: document.getElementById('bathrooms')?.value || '',
-    yearBuilt: document.getElementById('yearBuilt')?.value || '',
-    floors: document.getElementById('floors')?.value || '',
-    comparables: comps,
-    marketTrend: trend,
-    estimatedRate: rate,
-    estimatedValue: rate * (area || 1000),
+    builtArea:  document.getElementById('builtArea')?.value||'',
+    plotArea:   document.getElementById('plotArea')?.value||'',
+    bhk:        document.getElementById('bhk')?.value||'',
+    bedrooms:   document.getElementById('bedrooms')?.value||'',
+    bathrooms:  document.getElementById('bathrooms')?.value||'',
+    yearBuilt:  document.getElementById('yearBuilt')?.value||'',
+    floors:     document.getElementById('floors')?.value||'',
+    comparables:    comps,
+    marketTrend:    document.querySelector('#sc4 .chip-wrap .chip.selected')?.textContent||'Stable',
+    estimatedRate:  rate,
+    estimatedValue: rate*(area||1000),
     valuationMethod: document.getElementById('valMethod').value,
-    marketRemarks: document.getElementById('mktRemarks').value,
+    marketRemarks:   document.getElementById('mktRemarks').value,
   };
 }
 
-// ── AUTO SAVE DRAFT (local) ──
 function autoSaveDraft() {
   try {
-    const data = { ...collectData(), status: 'draft' };
-    const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
-    if (idx >= 0) inspectionsCache[idx] = data;
-    else inspectionsCache.push(data);
-    localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
-    document.getElementById('saveIndicator').textContent = '✓ Draft saved';
-    setTimeout(() => document.getElementById('saveIndicator').textContent = '', 2000);
-  } catch(e) { console.log('Draft save error:', e); }
+    inspectionsCache = JSON.parse(localStorage.getItem(inspsKey())||'[]');
+    const data = {...collectData(), status:'draft'};
+    const idx  = inspectionsCache.findIndex(i=>i.id===currentInspectionId);
+    if (idx>=0) inspectionsCache[idx]=data; else inspectionsCache.push(data);
+    localStorage.setItem(inspsKey(), JSON.stringify(inspectionsCache));
+    document.getElementById('saveIndicator').textContent='✓ Draft saved';
+    setTimeout(()=>document.getElementById('saveIndicator').textContent='',2000);
+  } catch(e){}
 }
 
-// ── PROCESSING ──
+// ════════════════════════════════════════════════
+//  PROCESSING
+// ════════════════════════════════════════════════
 async function startProcessing() {
   showPage('page-processing');
-  document.getElementById('appNavBar').style.display = 'none';
+  document.getElementById('appNavBar').style.display='none';
 
-  // Update step labels dynamically
-  const stepTexts = [
-    'Parsing inspection data',
-    'Analysing market data',
-    'Computing valuation',
-    'Drafting report narrative',
-    'Saving to Google Sheets',
-    photos.length > 0 ? `Uploading ${photos.length} photo(s) to Drive` : 'No photos to upload'
-  ];
-  stepTexts.forEach((t, i) => {
-    const el = document.querySelector(`#ps${i} .ps-icon`);
-    if (el) el.nextSibling.textContent = t;
-  });
-
-  // Animate steps 0–4 (data steps)
-  for (let i = 0; i < 5; i++) {
+  for (let i=0; i<5; i++) {
     document.getElementById('ps'+i).classList.add('running');
-    document.getElementById('pc'+i).innerHTML = '<span class="spin">⟳</span>';
+    document.getElementById('pc'+i).innerHTML='<span class="spin">⟳</span>';
     await delay(600);
     document.getElementById('ps'+i).classList.remove('running');
     document.getElementById('ps'+i).classList.add('done');
-    document.getElementById('pc'+i).textContent = '✅';
+    document.getElementById('pc'+i).textContent='✅';
   }
-
-  // Step 5 (photos) handled inside generateAndSave
   document.getElementById('ps5').classList.add('running');
-  document.getElementById('pc5').innerHTML = photos.length > 0
-    ? '<span class="spin">⟳</span>'
-    : '—';
+  document.getElementById('pc5').innerHTML = photos.length>0 ? '<span class="spin">⟳</span>' : '—';
 
   const data = collectData();
   await generateAndSave(data);
 }
 
-// ── GENERATE & SAVE ──
 async function generateAndSave(data) {
-  // Step 1 — Generate AI report
   reportText = await callAI(data);
 
-  // Step 2 — Save inspection row to Google Sheets
-  let sheetSaved = false;
-  let folderLink = '';
+  // Save to Sheets — include full reportText so it appears in the sheet
+  let sheetSaved=false, folderLink='';
   try {
     const result = await postToScript({
       type: 'inspection',
       ...data,
-      reportText,
+      reportText,           // ← full AI report saved to sheet
       photoCount: photos.length
     });
-    sheetSaved = result.success === true;
-    folderLink = result.folderLink || '';
-  } catch(e) {
-    console.log('Sheet save error:', e);
+    sheetSaved = result.success===true;
+    folderLink = result.folderLink||'';
+  } catch(e){ console.log('Sheet error:',e); }
+
+  // Upload photos one by one
+  let photosUploaded=0;
+  for (let i=0; i<photos.length; i++) {
+    try {
+      document.getElementById('pc5').innerHTML=`<span style="color:var(--gold);font-size:12px">${i+1}/${photos.length}</span>`;
+      const compressed = await compressImage(photos[i].dataUrl, 1024, 0.75);
+      const result = await postToScript({
+        type:'photo', refNo:data.refNo, dataUrl:compressed,
+        label:(photos[i].label&&photos[i].label.trim())?photos[i].label.trim():'photo_'+(i+1), index:i
+      });
+      if (result.success) photosUploaded++;
+    } catch(e){ console.log('Photo error:',e); }
   }
 
-  // Step 3 — Upload photos one by one
-  let photosUploaded = 0;
-  if (photos.length > 0) {
-    for (let i = 0; i < photos.length; i++) {
-      try {
-        document.getElementById('pc5').innerHTML = `<span style="color:#C9A84C;font-size:12px">${i+1}/${photos.length}</span>`;
-        const compressed = await compressImage(photos[i].dataUrl, 1024, 0.75);
-        const result = await postToScript({
-          type: 'photo',
-          refNo: data.refNo,
-          dataUrl: compressed,
-          label: (photos[i].label && photos[i].label.trim())
-            ? photos[i].label.trim()
-            : 'photo_' + (i + 1),
-          index: i
-        });
-        if (result.success) photosUploaded++;
-      } catch(e) {
-        console.log('Photo ' + (i+1) + ' error:', e);
-      }
-    }
-  }
   document.getElementById('ps5').classList.remove('running');
   document.getElementById('ps5').classList.add('done');
-  document.getElementById('pc5').textContent = '✅';
+  document.getElementById('pc5').textContent='✅';
 
-  // Step 4 — Save locally as backup
-  const finalData = {
-    ...data, status: 'complete', reportText,
-    folderLink, sheetSaved, photosUploaded,
-    photoCount: photos.length
-  };
-  const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
-  if (idx >= 0) inspectionsCache[idx] = finalData;
-  else inspectionsCache.push(finalData);
-  localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
+  // Save locally
+  inspectionsCache = JSON.parse(localStorage.getItem(inspsKey())||'[]');
+  const finalData = {...data,status:'complete',reportText,folderLink,sheetSaved,photosUploaded,photoCount:photos.length};
+  const idx = inspectionsCache.findIndex(i=>i.id===currentInspectionId);
+  if (idx>=0) inspectionsCache[idx]=finalData; else inspectionsCache.push(finalData);
+  localStorage.setItem(inspsKey(), JSON.stringify(inspectionsCache));
 
-  if (sheetSaved && photosUploaded === photos.length && photos.length > 0) {
-    showToast(`✅ Sheet saved + ${photosUploaded} photos in Drive!`);
-  } else if (sheetSaved) {
-    showToast(`✅ Sheet saved. ${photosUploaded}/${photos.length} photos uploaded`);
-  } else {
-    showToast('⚠️ Saved locally — check Apps Script deployment');
-  }
+  if (sheetSaved) showToast(`✅ ${data.refNo} saved to Sheets + ${photosUploaded} photos`);
+  else showToast('⚠️ Saved locally — check internet');
 
-  showReportPage(data);
+  openReportReader(currentInspectionId);
 }
 
-// ── POST TO APPS SCRIPT (XMLHttpRequest — more reliable than fetch for Apps Script) ──
 function postToScript(payload) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve,reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', APPS_SCRIPT_URL, true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.setRequestHeader('Content-Type','text/plain');
     xhr.timeout = 30000;
-
-    xhr.onload = function() {
-      try {
-        const json = JSON.parse(xhr.responseText);
-        resolve(json);
-      } catch(e) {
-        // Apps Script sometimes redirects — try to extract JSON
-        const match = xhr.responseText.match(/\{.*\}/s);
-        if (match) {
-          try { resolve(JSON.parse(match[0])); return; } catch(e2) {}
-        }
-        resolve({ success: false, error: 'Parse error: ' + xhr.responseText.substring(0, 100) });
-      }
-    };
-
-    xhr.onerror = function() {
-      // CORS error on response read — but request MAY have succeeded on server
-      // For photos, assume success if no network error
-      console.log('XHR error (may still have saved on server)');
-      resolve({ success: true, corsBlocked: true });
-    };
-
-    xhr.ontimeout = function() {
-      reject(new Error('Request timed out'));
-    };
-
+    xhr.onload  = () => { try { resolve(JSON.parse(xhr.responseText)); } catch(e){ resolve({success:true,corsBlocked:true}); } };
+    xhr.onerror = () => resolve({success:true,corsBlocked:true});
+    xhr.ontimeout = () => reject(new Error('Timeout'));
     xhr.send(JSON.stringify(payload));
   });
 }
 
-// ── COMPRESS IMAGE before upload ──
-function compressImage(dataUrl, maxWidth, quality) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      let w = img.width, h = img.height;
-      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.onerror = () => resolve(dataUrl); // fallback to original
-    img.src = dataUrl;
-  });
-}
-
 async function callAI(data) {
-  const prompt = `You are a senior certified property valuer in India. Write a formal, professional property valuation report based on the inspection data below. Use formal language throughout. Include all 9 sections clearly labeled.
+  const prompt = `You are a senior certified property valuer in India. Write a formal, professional property valuation report. Use formal language. Number each section clearly.
 
-INSPECTION DATA:
-Reference No: ${data.refNo}
-Inspection Date: ${data.inspDate}
-Valuer: ${data.valuedBy}
-Client: ${data.client}
-Purpose: ${data.purpose}
-Property Type: ${data.propertyType}
-Address: ${data.address}
-GPS: ${data.gps}
-
-PROPERTY:
-Built-up Area: ${data.builtArea} sq.ft | Plot: ${data.plotArea} sq.ft
-Configuration: ${data.bhk} | Bedrooms: ${data.bedrooms} | Bathrooms: ${data.bathrooms}
-Year Built: ${data.yearBuilt} | Floors: ${data.floors}
-Amenities: ${data.amenities.join(', ') || 'None noted'}
-
-CONDITION (${data.condition}):
-Foundation: ${data.foundation} | Walls: ${data.walls} | Roof: ${data.roof} | Flooring: ${data.flooring}
-Electricity: ${data.electricity} | Water: ${data.water} | Drainage: ${data.drainage}
-Legal: ${data.legalStatus} | Road: ${data.roadAccess} | Transport: ${data.transport}
-Landmarks: ${data.landmarks} | Location Rating: ${data.locationRating}
-Observations: ${data.observations}
-
-PHOTOGRAPHY: ${data.photoCount} site photographs taken and uploaded to Drive.
-
-MARKET:
-Trend: ${data.marketTrend}
-Comparables: ${data.comparables.map((c,i)=>`(${i+1}) ${c.address} @ ₹${c.rate}/sq.ft, ${c.area} sq.ft`).join(' | ')}
-Adopted Rate: ₹${data.estimatedRate}/sq.ft
-Method: ${data.valuationMethod}
+Ref: ${data.refNo} | Date: ${data.inspDate} | Valuer: ${data.valuedBy} | Client: ${data.client}
+Purpose: ${data.purpose} | Type: ${data.propertyType} | Address: ${data.address}
+Built-up: ${data.builtArea} sqft | Plot: ${data.plotArea} sqft | Config: ${data.bhk}
+Bedrooms: ${data.bedrooms} | Bathrooms: ${data.bathrooms} | Year: ${data.yearBuilt} | Floors: ${data.floors}
+Amenities: ${(data.amenities||[]).join(', ')||'None'}
+Condition: ${data.condition} | Foundation: ${data.foundation} | Walls: ${data.walls} | Roof: ${data.roof}
+Electricity: ${data.electricity} | Water: ${data.water} | Drainage: ${data.drainage} | Legal: ${data.legalStatus}
+Road: ${data.roadAccess} | Transport: ${data.transport} | Landmarks: ${data.landmarks}
+Location Rating: ${data.locationRating} | Observations: ${data.observations}
+Photos: ${data.photoCount} taken on site.
+Market Trend: ${data.marketTrend} | Rate: ₹${data.estimatedRate}/sqft | Method: ${data.valuationMethod}
+Comparables: ${(data.comparables||[]).map((c,i)=>`(${i+1}) ${c.address} @₹${c.rate}/sqft`).join(' | ')}
 Remarks: ${data.marketRemarks}
 
-Write the full report with these sections:
+Write sections:
 1. EXECUTIVE SUMMARY
 2. PROPERTY DESCRIPTION
 3. LOCATION ANALYSIS
@@ -1256,106 +1720,65 @@ Write the full report with these sections:
 5. UTILITIES & INFRASTRUCTURE
 6. MARKET ANALYSIS & COMPARABLE TRANSACTIONS
 7. VALUATION METHODOLOGY
-8. ESTIMATED MARKET VALUE (include the final value clearly and a ±8% range)
+8. ESTIMATED MARKET VALUE (state value + ±8% range clearly)
 9. VALUER'S DECLARATION & CERTIFICATE
 
-End with a professional sign-off including valuer name, date, and a note that photographs are stored in Google Drive.`;
+Sign off with valuer name and date.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    const res  = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
     });
     const json = await res.json();
     return json.content?.[0]?.text || fallbackReport(data);
-  } catch(e) { return fallbackReport(data); }
+  } catch(e){ return fallbackReport(data); }
 }
 
 function fallbackReport(data) {
-  const val = data.estimatedValue;
-  return `PROPERTY VALUATION REPORT
-${'═'.repeat(50)}
-Reference: ${data.refNo}    Date: ${data.inspDate}
-Valuer: ${data.valuedBy}
-Client: ${data.client} | Purpose: ${data.purpose}
-
-1. EXECUTIVE SUMMARY
-This valuation report covers the ${data.propertyType.toLowerCase()} property at ${data.address}, inspected on ${data.inspDate} for ${data.purpose} purposes.
-
-2. PROPERTY DESCRIPTION
-Type: ${data.propertyType} | Config: ${data.bhk}
-Built-up: ${data.builtArea} sq.ft | Plot: ${data.plotArea} sq.ft
-Year: ${data.yearBuilt} | Floors: ${data.floors}
-Amenities: ${data.amenities.join(', ') || '—'}
-
-3. LOCATION ANALYSIS
-Road Access: ${data.roadAccess} | Transport: ${data.transport}
-Location Rating: ${data.locationRating}
-Nearby: ${data.landmarks || 'Various amenities'}
-
-4. STRUCTURAL ASSESSMENT
-Condition: ${data.condition}
-Foundation: ${data.foundation} | Walls: ${data.walls}
-Roof: ${data.roof} | Flooring: ${data.flooring}
-
-5. UTILITIES
-Electricity: ${data.electricity} | Water: ${data.water}
-Drainage: ${data.drainage} | Legal: ${data.legalStatus}
-
-6. MARKET ANALYSIS
-Trend: ${data.marketTrend}
-${data.comparables.map((c,i)=>`Comp ${i+1}: ${c.address} @ ₹${c.rate}/sq.ft`).join('\n')}
-
-7. VALUATION METHODOLOGY
-Method: ${data.valuationMethod}
-Rate Adopted: ₹${data.estimatedRate}/sq.ft
-
-8. ESTIMATED MARKET VALUE
-Fair Market Value: ₹${val.toLocaleString('en-IN')}
-Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} to ₹${Math.round(val*1.08).toLocaleString('en-IN')}
-
-9. VALUER'S CERTIFICATE
-I certify that I have personally inspected this property.
-${data.photoCount} photographs are stored in Google Drive.
-
-Signed: ${data.valuedBy}
-Date: ${data.inspDate}
-${'═'.repeat(50)}`;
+  const val = data.estimatedValue||0;
+  return `PROPERTY VALUATION REPORT\n${'═'.repeat(48)}\nReference: ${data.refNo}    Date: ${data.inspDate}\nValuer: ${data.valuedBy} | Client: ${data.client}\n\n1. EXECUTIVE SUMMARY\nThis report covers the ${data.propertyType} property at ${data.address}.\n\n2. PROPERTY DESCRIPTION\nConfig: ${data.bhk} | Built-up: ${data.builtArea} sqft | Year: ${data.yearBuilt}\n\n3. LOCATION ANALYSIS\nRoad: ${data.roadAccess} | Transport: ${data.transport} | Rating: ${data.locationRating}\n\n4. STRUCTURAL ASSESSMENT\nCondition: ${data.condition} | Foundation: ${data.foundation} | Walls: ${data.walls}\n\n5. UTILITIES\nElectricity: ${data.electricity} | Water: ${data.water} | Legal: ${data.legalStatus}\n\n6. MARKET ANALYSIS\nTrend: ${data.marketTrend}\n${(data.comparables||[]).map((c,i)=>`Comp ${i+1}: ${c.address} @₹${c.rate}/sqft`).join('\n')}\n\n7. VALUATION METHODOLOGY\nMethod: ${data.valuationMethod} | Rate: ₹${data.estimatedRate}/sqft\n\n8. ESTIMATED MARKET VALUE\nFair Market Value: ₹${val.toLocaleString('en-IN')}\nRange: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}\n\n9. VALUER'S CERTIFICATE\nI certify I have personally inspected this property.\n\nSigned: ${data.valuedBy}    Date: ${data.inspDate}\n${'═'.repeat(48)}`;
 }
 
-function showReportPage(data) {
-  const val = data.estimatedValue;
-  if (val > 0) {
-    document.getElementById('rptValBox').style.display = 'block';
-    document.getElementById('rptVal').textContent = '₹' + val.toLocaleString('en-IN');
-    document.getElementById('rptRange').textContent = `Range: ₹${Math.round(val*0.92).toLocaleString('en-IN')} – ₹${Math.round(val*1.08).toLocaleString('en-IN')}`;
-  }
-  document.getElementById('rptSubtitle').textContent = `${data.refNo} — ${data.address || 'Address not set'}`;
-  document.getElementById('reportPreview').textContent = reportText;
-  showPage('page-report');
+function compressImage(dataUrl, maxWidth, quality) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w=img.width, h=img.height;
+      if (w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror = ()=>resolve(dataUrl);
+    img.src = dataUrl;
+  });
 }
 
 function downloadReport() {
-  const blob = new Blob([reportText], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `ValuPro_Report_${document.getElementById('refNo').value || 'Report'}.txt`;
+  const blob = new Blob([reportText],{type:'text/plain'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `ValuPro_Report_${Date.now()}.txt`;
   a.click();
   showToast('Report downloaded!');
 }
 
-// ── HELPERS ──
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'page-app') document.getElementById('appNavBar').style.display = 'flex';
+  if (id==='page-app') document.getElementById('appNavBar').style.display='flex';
+  else document.getElementById('appNavBar').style.display='none';
 }
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
 </body>
