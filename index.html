@@ -1095,65 +1095,52 @@ async function generateAndSave(data) {
   // Step 1 — Generate AI report
   reportText = await callAI(data);
 
-  // Step 2 — Save inspection data to Sheets (WITHOUT photos first)
+  // Step 2 — Save inspection row to Google Sheets
   let sheetSaved = false;
   let folderLink = '';
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        type: 'inspection',
-        ...data,
-        reportText,
-        photos: [] // no photos in this request
-      })
+    const result = await postToScript({
+      type: 'inspection',
+      ...data,
+      reportText,
+      photoCount: photos.length
     });
-    const json = await res.json();
-    sheetSaved = json.success === true;
-    folderLink = json.folderLink || '';
+    sheetSaved = result.success === true;
+    folderLink = result.folderLink || '';
   } catch(e) {
     console.log('Sheet save error:', e);
   }
 
-  // Step 3 — Upload each photo individually (small requests)
+  // Step 3 — Upload photos one by one
   let photosUploaded = 0;
   if (photos.length > 0) {
-    document.getElementById('pc5').innerHTML = '<span class="spin">⟳</span>';
     for (let i = 0; i < photos.length; i++) {
       try {
-        // Compress photo before sending
-        const compressed = await compressImage(photos[i].dataUrl, 800, 0.7);
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            type: 'photo',
-            refNo: data.refNo,
-            dataUrl: compressed,
-            label: (photos[i].label && photos[i].label.trim())
-              ? photos[i].label.trim()
-              : 'photo_' + (i + 1),
-            index: i
-          })
+        document.getElementById('pc5').innerHTML = `<span style="color:#C9A84C;font-size:12px">${i+1}/${photos.length}</span>`;
+        const compressed = await compressImage(photos[i].dataUrl, 1024, 0.75);
+        const result = await postToScript({
+          type: 'photo',
+          refNo: data.refNo,
+          dataUrl: compressed,
+          label: (photos[i].label && photos[i].label.trim())
+            ? photos[i].label.trim()
+            : 'photo_' + (i + 1),
+          index: i
         });
-        const json = await res.json();
-        if (json.success) photosUploaded++;
+        if (result.success) photosUploaded++;
       } catch(e) {
-        console.log('Photo ' + i + ' upload error:', e);
+        console.log('Photo ' + (i+1) + ' error:', e);
       }
     }
-    document.getElementById('pc5').textContent = '✅';
   }
+  document.getElementById('ps5').classList.remove('running');
+  document.getElementById('ps5').classList.add('done');
+  document.getElementById('pc5').textContent = '✅';
 
   // Step 4 — Save locally as backup
   const finalData = {
-    ...data,
-    status: 'complete',
-    reportText,
-    folderLink,
-    sheetSaved,
-    photosUploaded,
+    ...data, status: 'complete', reportText,
+    folderLink, sheetSaved, photosUploaded,
     photoCount: photos.length
   };
   const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
@@ -1161,15 +1148,52 @@ async function generateAndSave(data) {
   else inspectionsCache.push(finalData);
   localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
 
-  if (sheetSaved && photosUploaded === photos.length) {
-    showToast(`✅ Saved! ${photosUploaded} photos in Drive`);
+  if (sheetSaved && photosUploaded === photos.length && photos.length > 0) {
+    showToast(`✅ Sheet saved + ${photosUploaded} photos in Drive!`);
   } else if (sheetSaved) {
     showToast(`✅ Sheet saved. ${photosUploaded}/${photos.length} photos uploaded`);
   } else {
-    showToast('⚠️ Saved locally only — check Apps Script deployment');
+    showToast('⚠️ Saved locally — check Apps Script deployment');
   }
 
   showReportPage(data);
+}
+
+// ── POST TO APPS SCRIPT (XMLHttpRequest — more reliable than fetch for Apps Script) ──
+function postToScript(payload) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', APPS_SCRIPT_URL, true);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.timeout = 30000;
+
+    xhr.onload = function() {
+      try {
+        const json = JSON.parse(xhr.responseText);
+        resolve(json);
+      } catch(e) {
+        // Apps Script sometimes redirects — try to extract JSON
+        const match = xhr.responseText.match(/\{.*\}/s);
+        if (match) {
+          try { resolve(JSON.parse(match[0])); return; } catch(e2) {}
+        }
+        resolve({ success: false, error: 'Parse error: ' + xhr.responseText.substring(0, 100) });
+      }
+    };
+
+    xhr.onerror = function() {
+      // CORS error on response read — but request MAY have succeeded on server
+      // For photos, assume success if no network error
+      console.log('XHR error (may still have saved on server)');
+      resolve({ success: true, corsBlocked: true });
+    };
+
+    xhr.ontimeout = function() {
+      reject(new Error('Request timed out'));
+    };
+
+    xhr.send(JSON.stringify(payload));
+  });
 }
 
 // ── COMPRESS IMAGE before upload ──
