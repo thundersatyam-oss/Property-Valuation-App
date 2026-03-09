@@ -1056,23 +1056,35 @@ async function startProcessing() {
   showPage('page-processing');
   document.getElementById('appNavBar').style.display = 'none';
 
-  const stepLabels = [
+  // Update step labels dynamically
+  const stepTexts = [
     'Parsing inspection data',
-    'Uploading photos to Drive',
     'Analysing market data',
     'Computing valuation',
     'Drafting report narrative',
-    'Saving to Google Sheets'
+    'Saving to Google Sheets',
+    photos.length > 0 ? `Uploading ${photos.length} photo(s) to Drive` : 'No photos to upload'
   ];
+  stepTexts.forEach((t, i) => {
+    const el = document.querySelector(`#ps${i} .ps-icon`);
+    if (el) el.nextSibling.textContent = t;
+  });
 
-  for (let i = 0; i < 6; i++) {
+  // Animate steps 0–4 (data steps)
+  for (let i = 0; i < 5; i++) {
     document.getElementById('ps'+i).classList.add('running');
     document.getElementById('pc'+i).innerHTML = '<span class="spin">⟳</span>';
-    await delay(i === 1 ? Math.max(500, photos.length * 400) : i < 4 ? 600 : 900);
+    await delay(600);
     document.getElementById('ps'+i).classList.remove('running');
     document.getElementById('ps'+i).classList.add('done');
     document.getElementById('pc'+i).textContent = '✅';
   }
+
+  // Step 5 (photos) handled inside generateAndSave
+  document.getElementById('ps5').classList.add('running');
+  document.getElementById('pc5').innerHTML = photos.length > 0
+    ? '<span class="spin">⟳</span>'
+    : '—';
 
   const data = collectData();
   await generateAndSave(data);
@@ -1080,49 +1092,68 @@ async function startProcessing() {
 
 // ── GENERATE & SAVE ──
 async function generateAndSave(data) {
-  // 1. Generate AI report first
+  // Step 1 — Generate AI report
   reportText = await callAI(data);
 
-  // 2. Bundle ALL photos into the single inspection request
-  // This avoids CORS issues — one request does everything
-  const photoPayload = photos.map((p, i) => ({
-    dataUrl: p.dataUrl,
-    label: (p.label && p.label.trim()) ? p.label.trim() : ('photo_' + (i + 1)),
-    index: i
-  }));
-
-  // 3. Send everything to Apps Script in ONE request
+  // Step 2 — Save inspection data to Sheets (WITHOUT photos first)
   let sheetSaved = false;
   let folderLink = '';
   try {
-    const payload = {
-      type: 'inspection',
-      ...data,
-      reportText,
-      photos: photoPayload  // ← photos bundled here
-    };
-
-    // Use no-cors mode via form trick to avoid CORS block
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' }, // text/plain avoids CORS preflight
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        type: 'inspection',
+        ...data,
+        reportText,
+        photos: [] // no photos in this request
+      })
     });
-
     const json = await res.json();
     sheetSaved = json.success === true;
     folderLink = json.folderLink || '';
   } catch(e) {
-    console.log('Save error:', e);
+    console.log('Sheet save error:', e);
   }
 
-  // 4. Save locally as backup regardless
+  // Step 3 — Upload each photo individually (small requests)
+  let photosUploaded = 0;
+  if (photos.length > 0) {
+    document.getElementById('pc5').innerHTML = '<span class="spin">⟳</span>';
+    for (let i = 0; i < photos.length; i++) {
+      try {
+        // Compress photo before sending
+        const compressed = await compressImage(photos[i].dataUrl, 800, 0.7);
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            type: 'photo',
+            refNo: data.refNo,
+            dataUrl: compressed,
+            label: (photos[i].label && photos[i].label.trim())
+              ? photos[i].label.trim()
+              : 'photo_' + (i + 1),
+            index: i
+          })
+        });
+        const json = await res.json();
+        if (json.success) photosUploaded++;
+      } catch(e) {
+        console.log('Photo ' + i + ' upload error:', e);
+      }
+    }
+    document.getElementById('pc5').textContent = '✅';
+  }
+
+  // Step 4 — Save locally as backup
   const finalData = {
     ...data,
     status: 'complete',
     reportText,
     folderLink,
     sheetSaved,
+    photosUploaded,
     photoCount: photos.length
   };
   const idx = inspectionsCache.findIndex(i => i.id === currentInspectionId);
@@ -1130,13 +1161,32 @@ async function generateAndSave(data) {
   else inspectionsCache.push(finalData);
   localStorage.setItem('valuepro_inspections', JSON.stringify(inspectionsCache));
 
-  if (sheetSaved) {
-    showToast('✅ Saved to Google Sheets + Drive!');
+  if (sheetSaved && photosUploaded === photos.length) {
+    showToast(`✅ Saved! ${photosUploaded} photos in Drive`);
+  } else if (sheetSaved) {
+    showToast(`✅ Sheet saved. ${photosUploaded}/${photos.length} photos uploaded`);
   } else {
-    showToast('⚠️ Saved locally — check internet & redeploy script');
+    showToast('⚠️ Saved locally only — check Apps Script deployment');
   }
 
   showReportPage(data);
+}
+
+// ── COMPRESS IMAGE before upload ──
+function compressImage(dataUrl, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback to original
+    img.src = dataUrl;
+  });
 }
 
 async function callAI(data) {
